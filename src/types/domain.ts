@@ -37,6 +37,7 @@ type ListingUser = {
 type ListingPropertyType = "house" | "apartmentUnitFlat" | "townhouse";
 
 export type Listing = {
+  id: number;
   listingType: ListingType;
   isNewDevelopement: boolean;
   status: ListingStatus;
@@ -46,7 +47,6 @@ export type Listing = {
   images: string[];
   address: ListingAddress;
   features: ListingFeatures;
-  id: number;
   displayPrice: string;
   price: number;
   auctionDate: Date;

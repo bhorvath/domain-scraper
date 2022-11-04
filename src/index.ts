@@ -1,9 +1,8 @@
 import * as dotenv from "dotenv";
 import { getShortlistListings } from "./domain";
 import { ListingSearchCriteria } from "./types/domain";
-import { authoriseSheets } from "./types/sheets/auth";
-import { listMajors } from "./types/sheets";
-import { OAuth2Client } from "google-auth-library";
+import { authoriseSheets } from "./sheets/auth";
+import { Sheets } from "./sheets/sheets";
 
 dotenv.config();
 
@@ -28,19 +27,24 @@ const getSheetsSpreadsheetId = (): string => {
 };
 
 (async () => {
-  // const domainAuthToken = getDomainAuthToken();
+  const domainAuthToken = getDomainAuthToken();
   const sheetsSpreadsheetId = getSheetsSpreadsheetId();
 
-  // const searchCriteria: ListingSearchCriteria = {
-  //   address: {
-  //     suburb: "",
-  //   },
-  // };
+  const searchCriteria: ListingSearchCriteria = {
+    address: {
+      suburb: "",
+    },
+  };
 
-  // const listings = await getShortlistListings(domainAuthToken, searchCriteria);
-  // console.log(listings);
+  const listings = await getShortlistListings(domainAuthToken, searchCriteria);
+  console.info(`Found ${listings.length} shortlisted properties`);
 
-  authoriseSheets()
-    .then((auth: OAuth2Client) => listMajors(auth, sheetsSpreadsheetId))
-    .catch(console.error);
+  try {
+    const auth = await authoriseSheets();
+
+    const sheets = new Sheets(auth, sheetsSpreadsheetId);
+    await sheets.updateListings(listings);
+  } catch (e) {
+    console.error(e);
+  }
 })();
