@@ -62,4 +62,4 @@ export type Listing = {
   propertyTypes: ListingPropertyType[];
 };
 
-export type ListingSearchCriteria = PartialDeep<Listing>;
+export type ListingFilterCriteria = PartialDeep<Listing>;

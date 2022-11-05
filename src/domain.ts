@@ -1,18 +1,18 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { load } from "cheerio";
-import { Listing, ListingSearchCriteria } from "./types/domain";
+import { Listing, ListingFilterCriteria } from "./types/domain";
 
 const shortlistUrl = "https://www.domain.com.au/user/shortlist";
 
 export const getShortlistListings = async (
   authToken: string,
-  searchCriteria?: ListingSearchCriteria
+  filterCriteria?: ListingFilterCriteria
 ) => {
   const page = await getPage(authToken);
   const data = extractData(page);
   const parsedData = parseData(data);
   const listings = extractListings(parsedData);
-  const result = search(listings, searchCriteria);
+  const result = filter(listings, filterCriteria);
   const clean = cleanse(result);
 
   return clean;
@@ -46,16 +46,50 @@ const extractListings = (data: any): Listing[] => {
   return listings;
 };
 
-// TODO: Implement search
-const search = (
+const filter = (
   listings: Listing[],
-  searchCriteria?: ListingSearchCriteria
+  filterCriteria?: ListingFilterCriteria
 ): Listing[] => {
-  return listings;
+  if (!filterCriteria) {
+    return listings;
+  }
+
+  return listings.filter((listing) => matchesCriteria(listing, filterCriteria));
 };
 
-const hasChildren = (obj: object): boolean => {
-  return !!Object.keys(obj).length;
+const matchesCriteria = (listing: any, filterCriteria: any): boolean => {
+  const keys = Object.keys(filterCriteria) as Array<
+    keyof ListingFilterCriteria
+  >;
+
+  for (const key of keys) {
+    const criteriaValue = filterCriteria[key];
+    const listingValue = listing[key];
+
+    if (hasChildren(criteriaValue)) {
+      // Look deeper if the value is an object
+      const deepMatches = matchesCriteria(listingValue, criteriaValue);
+      if (!deepMatches) {
+        return false;
+      }
+    } else {
+      if (listingValue !== criteriaValue) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
+const hasChildren = (
+  obj: ListingFilterCriteria[keyof ListingFilterCriteria]
+): boolean => {
+  if (!obj) {
+    return false;
+  }
+
+  return Object(obj) === obj && !!Object.keys(obj).length;
 };
 
 const cleanse = (listings: Listing[]): any[] => {

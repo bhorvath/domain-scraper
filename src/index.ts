@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import { getShortlistListings } from "./domain";
-import { ListingSearchCriteria } from "./types/domain";
+import { ListingFilterCriteria } from "./types/domain";
 import { authoriseSheets } from "./sheets/auth";
 import { Sheets } from "./sheets/sheets";
 
@@ -30,14 +30,16 @@ const getSheetsSpreadsheetId = (): string => {
   const domainAuthToken = getDomainAuthToken();
   const sheetsSpreadsheetId = getSheetsSpreadsheetId();
 
-  const searchCriteria: ListingSearchCriteria = {
-    address: {
-      suburb: "",
+  const filterCriteria: ListingFilterCriteria = {
+    listingType: "sold",
+    features: {
+      beds: 4,
     },
   };
 
-  const listings = await getShortlistListings(domainAuthToken, searchCriteria);
+  const listings = await getShortlistListings(domainAuthToken, filterCriteria);
   console.info(`Found ${listings.length} shortlisted properties`);
+  console.debug("listing", listings[0]);
 
   try {
     const auth = await authoriseSheets();
