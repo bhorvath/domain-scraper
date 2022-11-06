@@ -28,60 +28,11 @@ export const transformToSheetsListing = (listing: Listing): SheetsListing => {
     listing.datePlaced, // Date Listed
     getSoldPrice(listing), // Sold price
     "", // Date sold
-    FORMULA(
-      IF(
-        AND(
-          NOT(ISNUMBER(Element.AdvertisedPrice)),
-          NOT(ISNUMBER(Element.InitialPrice))
-        ),
-        "",
-        IF(
-          NOT(ISNUMBER(Element.SoldPrice)),
-          IF(
-            ISBLANK(Element.InitialPrice),
-            "",
-            `(${Element.InitialPrice}-${Element.AdvertisedPrice})`
-          ),
-          `${IF(
-            ISBLANK(Element.InitialPrice),
-            Element.AdvertisedPrice,
-            Element.InitialPrice
-          )}-${Element.SoldPrice}`
-        )
-      )
-    ), // Discounting
-    FORMULA(
-      IF(
-        AND(
-          NOT(ISNUMBER(Element.AdvertisedPrice)),
-          NOT(ISNUMBER(Element.InitialPrice))
-        ),
-        "",
-        IF(
-          ISBLANK(Element.Discounting),
-          "",
-          `${Element.Discounting}/${IF(
-            ISBLANK(Element.InitialPrice),
-            Element.AdvertisedPrice,
-            Element.InitialPrice
-          )}`
-        )
-      )
-    ), // Disc. %
-    FORMULA(
-      DATEDIF(
-        Element.DateListed,
-        IF(ISBLANK(Element.DateSold), TODAY(), Element.DateSold)
-      ) // Days Listed
-    ),
+    getDiscountFormula(), // Discounting
+    getDiscountPercentageFormula(), // Disc. %
+    getDaysListedFormula(), // Days Listed
     listing.url, // URL
-    FORMULA(
-      IF(
-        NOT(ISNUMBER(Element.SoldPrice)),
-        Element.AdvertisedPrice,
-        Element.SoldPrice
-      )
-    ), // Est. Price
+    getEstPriceFormula(), // Est. Price
     undefined, // Last Sold Price
     undefined, // Last Sold Date
     undefined, // Difference
@@ -91,6 +42,67 @@ export const transformToSheetsListing = (listing: Listing): SheetsListing => {
     "", // Comments
   ];
 };
+
+const getDiscountFormula = (): string =>
+  FORMULA(
+    IF(
+      AND(
+        NOT(ISNUMBER(Element.AdvertisedPrice)),
+        NOT(ISNUMBER(Element.InitialPrice))
+      ),
+      "",
+      IF(
+        NOT(ISNUMBER(Element.SoldPrice)),
+        IF(
+          ISBLANK(Element.InitialPrice),
+          "",
+          `(${Element.InitialPrice}-${Element.AdvertisedPrice})`
+        ),
+        `${IF(
+          ISBLANK(Element.InitialPrice),
+          Element.AdvertisedPrice,
+          Element.InitialPrice
+        )}-${Element.SoldPrice}`
+      )
+    )
+  );
+
+const getDiscountPercentageFormula = (): string =>
+  FORMULA(
+    IF(
+      AND(
+        NOT(ISNUMBER(Element.AdvertisedPrice)),
+        NOT(ISNUMBER(Element.InitialPrice))
+      ),
+      "",
+      IF(
+        ISBLANK(Element.Discounting),
+        "",
+        `${Element.Discounting}/${IF(
+          ISBLANK(Element.InitialPrice),
+          Element.AdvertisedPrice,
+          Element.InitialPrice
+        )}`
+      )
+    )
+  );
+
+const getDaysListedFormula = (): string =>
+  FORMULA(
+    DATEDIF(
+      Element.DateListed,
+      IF(ISBLANK(Element.DateSold), TODAY(), Element.DateSold)
+    )
+  );
+
+const getEstPriceFormula = (): string =>
+  FORMULA(
+    IF(
+      NOT(ISNUMBER(Element.SoldPrice)),
+      Element.AdvertisedPrice,
+      Element.SoldPrice
+    )
+  );
 
 const getSoldPrice = (listing: Listing) => {
   // Only return sold price if the listing has sold
