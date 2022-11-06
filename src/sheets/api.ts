@@ -1,4 +1,5 @@
 import { sheets_v4 } from "googleapis";
+import { SheetsListing } from "../types/sheets";
 
 export class SheetsApi {
   constructor(
@@ -6,7 +7,7 @@ export class SheetsApi {
     private spreadsheetId: string
   ) {}
 
-  public async readListings(): Promise<any[][]> {
+  public async readListings(): Promise<SheetsListing[] | undefined> {
     const request: sheets_v4.Params$Resource$Spreadsheets$Values$Get = {
       spreadsheetId: this.spreadsheetId,
       majorDimension: "ROWS",
@@ -15,11 +16,10 @@ export class SheetsApi {
 
     const response = (await this.sheets.spreadsheets.values.get(request)).data;
 
-    return response.values ?? [[]];
+    return response.values as SheetsListing[];
   }
 
   public async writeListings(listings: any[]) {
-    console.info("Writing listings", listings.length);
     const request: sheets_v4.Params$Resource$Spreadsheets$Values$Append = {
       spreadsheetId: this.spreadsheetId,
       range: "Sheet1",
@@ -32,6 +32,6 @@ export class SheetsApi {
 
     const response = (await this.sheets.spreadsheets.values.append(request))
       .data;
-    console.log("response", response);
+    // console.log("response", response);
   }
 }

@@ -1,35 +1,122 @@
 import { Listing } from "../types/domain";
+import { SheetsListing } from "../types/sheets";
 import { Element } from "./element";
+import {
+  AND,
+  DATEDIF,
+  FORMULA,
+  IF,
+  ISBLANK,
+  ISNUMBER,
+  NOT,
+  TODAY,
+} from "./functions";
 
-export const transformListingRequests = (listings: Listing[]): any[][] =>
-  listings.map(transformListingRequest);
+export const transformToSheetsListings = (
+  listings: Listing[]
+): SheetsListing[] => listings.map(transformToSheetsListing);
 
-export const transformListingRequest = (listing: Listing): any[] => {
+export const transformToSheetsListing = (listing: Listing): SheetsListing => {
   return [
-    listing.id,
     `${listing.address.street}, ${listing.address.suburb}`, // Address
+    "", // Distance
+    "", // Land
     listing.features.beds, // Beds
     listing.features.baths, // Baths
     listing.price, // Advertised Price
-    listing.price, // Initial Price
+    undefined, //  Price
     listing.datePlaced, // Date Listed
-    '=INDIRECT("R[0]C[-3]", FALSE)-INDIRECT("R[0]C[-2]",FALSE)',
-    // '=DATEDIF(INDIRECT(CONCAT("H", ROW())), IF(ISBLANK(INDIRECT(CONCAT("J", ROW()))),TODAY(),INDIRECT(CONCAT("J", ROW())),"D")', // Days listed
-    "=" + Element.DateListed,
+    getSoldPrice(listing), // Sold price
+    "", // Date sold
+    FORMULA(
+      IF(
+        AND(
+          NOT(ISNUMBER(Element.AdvertisedPrice)),
+          NOT(ISNUMBER(Element.InitialPrice))
+        ),
+        "",
+        IF(
+          NOT(ISNUMBER(Element.SoldPrice)),
+          IF(
+            ISBLANK(Element.InitialPrice),
+            "",
+            `(${Element.InitialPrice}-${Element.AdvertisedPrice})`
+          ),
+          `${IF(
+            ISBLANK(Element.InitialPrice),
+            Element.AdvertisedPrice,
+            Element.InitialPrice
+          )}-${Element.SoldPrice}`
+        )
+      )
+    ), // Discounting
+    FORMULA(
+      IF(
+        AND(
+          NOT(ISNUMBER(Element.AdvertisedPrice)),
+          NOT(ISNUMBER(Element.InitialPrice))
+        ),
+        "",
+        IF(
+          ISBLANK(Element.Discounting),
+          "",
+          `${Element.Discounting}/${IF(
+            ISBLANK(Element.InitialPrice),
+            Element.AdvertisedPrice,
+            Element.InitialPrice
+          )}`
+        )
+      )
+    ), // Disc. %
+    FORMULA(
+      DATEDIF(
+        Element.DateListed,
+        IF(ISBLANK(Element.DateSold), TODAY(), Element.DateSold)
+      ) // Days Listed
+    ),
+    listing.url, // URL
+    FORMULA(
+      IF(
+        NOT(ISNUMBER(Element.SoldPrice)),
+        Element.AdvertisedPrice,
+        Element.SoldPrice
+      )
+    ), // Est. Price
+    undefined, // Last Sold Price
+    undefined, // Last Sold Date
+    undefined, // Difference
+    undefined, // Years Since Sold
+    undefined, // CAGR
+    listing.id, // ID
+    "", // Comments
   ];
 };
 
-export const transformListingResponses = (listings: any[][]): Listing[] =>
-  listings.map(transformListingResponse);
+const getSoldPrice = (listing: Listing) => {
+  // Only return sold price if the listing has sold
+  if (listing.listingType !== "sold") {
+    return "";
+  }
 
-export const transformListingResponse = (listing: any[]): Listing => {
+  // Remove prefix
+  const cleanPrice = listing.displayPrice.replace(/SOLD - /, "");
+
+  return cleanPrice;
+};
+
+export const transformListingResponses = (
+  listings: SheetsListing[]
+): Listing[] => listings.map(transformListingResponse);
+
+export const transformListingResponse = (listing: SheetsListing): Listing => {
   // console.log("transforming", listing);
+  const addressComponents = listing[0].split(/, /);
   return {
-    id: Number(listing[0]),
-    // address
-    // beds
-    // baths
-    displayPrice: listing[4],
-    datePlaced: listing[5],
+    address: {
+      street: addressComponents[0],
+      suburb: addressComponents[1],
+    },
+    price: listing[5],
+    id: Number(listing[20]),
   } as Listing;
 };

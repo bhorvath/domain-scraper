@@ -1,9 +1,10 @@
 import { OAuth2Client } from "google-auth-library";
-import { google, sheets_v4 } from "googleapis";
+import { google } from "googleapis";
 import { Listing } from "../types/domain";
+import { SheetColumns, SheetsListing } from "../types/sheets";
 import { SheetsApi } from "./api";
 import {
-  transformListingRequests,
+  transformToSheetsListings,
   transformListingResponses,
 } from "./transform";
 
@@ -22,18 +23,34 @@ export class Sheets {
 
   public async updateListings(listings: Listing[]) {
     const persistedListings = await this.getListings();
+
     const modifiedListings = this.findModifiedListings(
       persistedListings,
       listings
     );
-    // listings.forEach(async (listing) => {
-    //   await this.writeListing(listing);
-    // });
+
+    // If there are currently no persisted listings then add in a header as the
+    // first listing
+    if (!persistedListings.length) {
+      await this.api.writeListings([await this.getHeader()]);
+    }
+
+    console.info(`Writing ${modifiedListings.add.length} new listings`);
     await this.addListings(modifiedListings.add);
   }
 
-  private async getListings() {
-    return await this.api.readListings().then(transformListingResponses);
+  private getHeader(): SheetsListing {
+    return Object.keys(new SheetColumns()) as SheetsListing;
+  }
+
+  private async getListings(): Promise<Listing[]> {
+    // console.log("LISTINGS", await this.api.readListings());
+    const listings = await this.api.readListings();
+    if (listings) {
+      return await transformListingResponses(listings);
+    } else {
+      return [];
+    }
   }
 
   private findModifiedListings(
@@ -48,15 +65,12 @@ export class Sheets {
 
     currentListings.forEach((listing) => {
       const persistedListing = mappedPersistedListings.get(listing.id);
-      // console.log("persistedListing", persistedListing);
       if (!persistedListing) {
         listingsToModify.add.push(listing);
       } else {
         // listingsToModify.update.push(listing);
       }
     });
-
-    console.log("new", listingsToModify.add.length);
 
     return listingsToModify;
   }
@@ -66,8 +80,7 @@ export class Sheets {
   }
 
   private async addListings(listings: Listing[]) {
-    const w = transformListingRequests(listings);
-    console.log("listings to write", w.length);
-    await this.api.writeListings(w);
+    const listingsToWrite = transformToSheetsListings(listings);
+    await this.api.writeListings(listingsToWrite);
   }
 }

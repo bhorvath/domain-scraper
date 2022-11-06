@@ -34,6 +34,7 @@ const getSheetsSpreadsheetId = (): string => {
     listingType: "sold",
     features: {
       beds: 4,
+      baths: 3,
     },
   };
 
