@@ -3,6 +3,7 @@ import { google } from "googleapis";
 import { Listing } from "../types/domain";
 import { SheetColumns, SheetsListing } from "../types/sheets";
 import { SheetsApi } from "./api";
+import { SetupHandler } from "./handlers/setup-handler";
 import {
   transformToSheetsListings,
   transformListingResponses,
@@ -15,10 +16,12 @@ type ListingsToModify = {
 
 export class Sheets {
   private api: SheetsApi;
+  private setupHandler: SetupHandler;
 
   constructor(auth: OAuth2Client, spreadsheetId: string) {
     const sheets = google.sheets({ version: "v4", auth });
     this.api = new SheetsApi(sheets, spreadsheetId);
+    this.setupHandler = new SetupHandler(this.api);
   }
 
   public async updateListings(listings: Listing[]) {
@@ -29,18 +32,14 @@ export class Sheets {
       listings
     );
 
-    // If there are currently no persisted listings then add in a header as the
-    // first listing
+    // If there are currently no persisted listings then assume that this is a
+    // brand new sheet
     if (!persistedListings.length) {
-      await this.api.writeListings([await this.getHeader()]);
+      await this.setupHandler.execute();
     }
 
     console.info(`Writing ${modifiedListings.add.length} new listings`);
     await this.addListings(modifiedListings.add);
-  }
-
-  private getHeader(): SheetsListing {
-    return Object.keys(new SheetColumns()) as SheetsListing;
   }
 
   private async getListings(): Promise<Listing[]> {
