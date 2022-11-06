@@ -1,27 +1,21 @@
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
 import { Listing } from "../types/domain";
-import { SheetColumns, SheetsListing } from "../types/sheets";
 import { SheetsApi } from "./api";
+import { NewListingHandler } from "./handlers/new-listing-handler.ts";
 import { SetupHandler } from "./handlers/setup-handler";
-import {
-  transformToSheetsListings,
-  transformListingResponses,
-} from "./transform";
-
-type ListingsToModify = {
-  add: Listing[];
-  update: Listing[];
-};
+import { transformListingResponses } from "./transform";
 
 export class Sheets {
   private api: SheetsApi;
   private setupHandler: SetupHandler;
+  private newListingHandler: NewListingHandler;
 
   constructor(auth: OAuth2Client, spreadsheetId: string) {
     const sheets = google.sheets({ version: "v4", auth });
     this.api = new SheetsApi(sheets, spreadsheetId);
     this.setupHandler = new SetupHandler(this.api);
+    this.newListingHandler = new NewListingHandler(this.api);
   }
 
   public async updateListings(listings: Listing[]) {
@@ -38,8 +32,12 @@ export class Sheets {
       await this.setupHandler.execute();
     }
 
-    console.info(`Writing ${modifiedListings.add.length} new listings`);
-    await this.addListings(modifiedListings.add);
+    // Write new listings
+    try {
+      await this.newListingHandler.writeListings();
+    } finally {
+      this.newListingHandler.clearQueue();
+    }
   }
 
   private async getListings(): Promise<Listing[]> {
@@ -55,31 +53,20 @@ export class Sheets {
   private findModifiedListings(
     persistedListings: Listing[],
     currentListings: Listing[]
-  ): ListingsToModify {
-    const listingsToModify: ListingsToModify = {
-      add: [],
-      update: [],
-    };
+  ): void {
     const mappedPersistedListings = this.mapListings(persistedListings);
 
     currentListings.forEach((listing) => {
       const persistedListing = mappedPersistedListings.get(listing.id);
       if (!persistedListing) {
-        listingsToModify.add.push(listing);
+        this.newListingHandler.queueNewListing(listing);
       } else {
         // listingsToModify.update.push(listing);
       }
     });
-
-    return listingsToModify;
   }
 
   private mapListings(listings: Listing[]): Map<number, Listing> {
     return new Map(listings.map((listing) => [listing.id, listing]));
-  }
-
-  private async addListings(listings: Listing[]) {
-    const listingsToWrite = transformToSheetsListings(listings);
-    await this.api.writeListings(listingsToWrite);
   }
 }
