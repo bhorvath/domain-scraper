@@ -1,5 +1,5 @@
 import { Listing } from "../types/domain";
-import { SheetsListing } from "../types/sheets";
+import { RawListing, SheetsListing } from "../types/sheets";
 import { Element } from "./element";
 import {
   AND,
@@ -12,20 +12,19 @@ import {
   TODAY,
 } from "./functions";
 
-export const transformToSheetsListings = (
-  listings: Listing[]
-): SheetsListing[] => listings.map(transformToSheetsListing);
+export const listingsToRawListings = (listings: Listing[]): RawListing[] =>
+  listings.map(listingToRawListing);
 
-export const transformToSheetsListing = (listing: Listing): SheetsListing => {
+const listingToRawListing = (listing: Listing): RawListing => {
   return [
     `${listing.address.street}, ${listing.address.suburb}`, // Address
     "", // Distance
     "", // Land
-    listing.features.beds, // Beds
-    listing.features.baths, // Baths
-    listing.price, // Advertised Price
-    undefined, //  Price
-    listing.datePlaced, // Date Listed
+    String(listing.features.beds), // Beds
+    String(listing.features.baths), // Baths
+    String(listing.price), // Advertised Price
+    "", //  Initial Price
+    String(listing.datePlaced), // Date Listed
     getSoldPrice(listing), // Sold price
     "", // Date sold
     getDiscountFormula(), // Discounting
@@ -33,12 +32,45 @@ export const transformToSheetsListing = (listing: Listing): SheetsListing => {
     getDaysListedFormula(), // Days Listed
     listing.url, // URL
     getEstPriceFormula(), // Est. Price
-    undefined, // Last Sold Price
-    undefined, // Last Sold Date
-    undefined, // Difference
-    undefined, // Years Since Sold
-    undefined, // CAGR
-    listing.id, // ID
+    "", // Last Sold Price
+    "", // Last Sold Date
+    "", // Difference
+    "", // Years Since Sold
+    "", // CAGR
+    String(listing.id), // ID
+    "", // Comments
+  ];
+};
+
+export const sheetsListingsToRawListings = (
+  listings: SheetsListing[]
+): RawListing[] => listings.map(sheetsListingToRawListing);
+
+export const sheetsListingToRawListing = (
+  listing: SheetsListing
+): RawListing => {
+  return [
+    listing.address, // Address
+    listing.distance, // Distance
+    listing.land, // Land
+    String(listing.beds), // Beds
+    String(listing.baths), // Baths
+    String(listing.advertisedPrice), // Advertised Price
+    String(listing.initialPrice), //  Initial Price
+    String(listing.dateListed), // Date Listed
+    String(listing.soldPrice), // Sold price
+    listing.dateSold, // Date sold
+    listing.discounting, // Discounting
+    listing.discountPercentage, // Disc. %
+    listing.daysListed, // Days Listed
+    listing.url, // URL
+    listing.estimatedPrice, // Est. Price
+    String(listing.lastSoldPrice), // Last Sold Price
+    String(listing.lastSoldDate), // Last Sold Date
+    "", // Difference
+    "", // Years Since Sold
+    "", // CAGR
+    String(listing.id), // ID
     "", // Comments
   ];
 };
@@ -116,19 +148,46 @@ const getSoldPrice = (listing: Listing) => {
   return cleanPrice;
 };
 
-export const transformListingResponses = (
-  listings: SheetsListing[]
-): Listing[] => listings.map(transformListingResponse);
-
-export const transformListingResponse = (listing: SheetsListing): Listing => {
-  // console.log("transforming", listing);
-  const addressComponents = listing[0].split(/, /);
-  return {
-    address: {
-      street: addressComponents[0],
-      suburb: addressComponents[1],
-    },
-    price: listing[5],
-    id: Number(listing[20]),
-  } as Listing;
+export const rawListingsToSheetsListings = (
+  listings: RawListing[]
+): SheetsListing[] => {
+  let position = 1;
+  return listings.map((listing) => {
+    return rawListingToSheetsListing(listing, position++);
+  });
 };
+
+const rawListingToSheetsListing = (
+  listing: RawListing,
+  position: number
+): SheetsListing => {
+  // console.log("transforming", listing);
+  return {
+    position,
+    address: listing[0],
+    distance: listing[1],
+    land: listing[2],
+    beds: Number(listing[3]),
+    baths: Number(listing[4]),
+    advertisedPrice: cleanPrice(listing[5]),
+    initialPrice: cleanPrice(listing[6]),
+    dateListed: new Date(listing[7]),
+    soldPrice: listing[8],
+    dateSold: listing[9],
+    discounting: listing[10],
+    discountPercentage: listing[11],
+    daysListed: listing[12],
+    url: listing[13],
+    estimatedPrice: listing[14],
+    lastSoldPrice: cleanPrice(listing[15]),
+    lastSoldDate: new Date(listing[16]),
+    difference: Number(listing[18]),
+    yearsSinceSold: Number(listing[18]),
+    cagr: Number(listing[19]),
+    id: Number(listing[20]),
+    comments: listing[21],
+  };
+};
+
+const cleanPrice = (dirtyPrice: string): number =>
+  Number(dirtyPrice.replace(/\.00$|\D/g, ""));

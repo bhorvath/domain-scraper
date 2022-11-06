@@ -40,7 +40,7 @@ const getSheetsSpreadsheetId = (): string => {
 
   const listings = await getShortlistListings(domainAuthToken, filterCriteria);
   console.info(`Found ${listings.length} shortlisted properties`);
-  console.debug("listing", listings[0]);
+  // console.debug("listing", listings[0]);
 
   try {
     const auth = await authoriseSheets();

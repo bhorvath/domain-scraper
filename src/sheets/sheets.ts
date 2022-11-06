@@ -1,21 +1,25 @@
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
 import { Listing } from "../types/domain";
+import { SheetsListing } from "../types/sheets";
 import { SheetsApi } from "./api";
+import { ExistingListingHandler } from "./handlers/existing-listing-handler";
 import { NewListingHandler } from "./handlers/new-listing-handler.ts";
 import { SetupHandler } from "./handlers/setup-handler";
-import { transformListingResponses } from "./transform";
+import { rawListingsToSheetsListings } from "./transform";
 
 export class Sheets {
   private api: SheetsApi;
   private setupHandler: SetupHandler;
   private newListingHandler: NewListingHandler;
+  private existingListingHandler: ExistingListingHandler;
 
   constructor(auth: OAuth2Client, spreadsheetId: string) {
     const sheets = google.sheets({ version: "v4", auth });
     this.api = new SheetsApi(sheets, spreadsheetId);
     this.setupHandler = new SetupHandler(this.api);
     this.newListingHandler = new NewListingHandler(this.api);
+    this.existingListingHandler = new ExistingListingHandler(this.api);
   }
 
   public async updateListings(listings: Listing[]) {
@@ -38,35 +42,40 @@ export class Sheets {
     } finally {
       this.newListingHandler.clearQueue();
     }
-  }
 
-  private async getListings(): Promise<Listing[]> {
-    // console.log("LISTINGS", await this.api.readListings());
-    const listings = await this.api.readListings();
-    if (listings) {
-      return await transformListingResponses(listings);
-    } else {
-      return [];
+    // Update existing listings
+    try {
+      await this.existingListingHandler.processListings();
+    } finally {
+      this.existingListingHandler.clearQueue();
     }
   }
 
+  private async getListings(): Promise<SheetsListing[]> {
+    return await this.api
+      .readListings()
+      .then((rawListings) => rawListings ?? [])
+      .then(rawListingsToSheetsListings);
+  }
+
   private findModifiedListings(
-    persistedListings: Listing[],
+    persistedListings: SheetsListing[],
     currentListings: Listing[]
   ): void {
     const mappedPersistedListings = this.mapListings(persistedListings);
 
     currentListings.forEach((listing) => {
       const persistedListing = mappedPersistedListings.get(listing.id);
-      if (!persistedListing) {
-        this.newListingHandler.queueNewListing(listing);
+      if (persistedListing) {
+        this.existingListingHandler.queueListing(persistedListing, listing);
       } else {
-        // listingsToModify.update.push(listing);
+        this.newListingHandler.queueListing(listing);
       }
     });
   }
 
-  private mapListings(listings: Listing[]): Map<number, Listing> {
+  private mapListings(listings: SheetsListing[]): Map<number, SheetsListing> {
+    console.log("sheets listing", listings);
     return new Map(listings.map((listing) => [listing.id, listing]));
   }
 }
