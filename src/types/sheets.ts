@@ -7,7 +7,7 @@ export type SheetsListing = {
   baths: number;
   advertisedPrice: number;
   initialPrice: number | undefined;
-  dateListed: Date;
+  dateListed: string;
   soldPrice: string;
   dateSold: string;
   discounting: string;

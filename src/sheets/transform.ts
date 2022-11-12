@@ -24,7 +24,7 @@ const listingToRawListing = (listing: Listing): RawListing => {
     String(listing.features.baths), // Baths
     String(listing.price), // Advertised Price
     "", //  Initial Price
-    String(listing.datePlaced), // Date Listed
+    listing.datePlaced, // Date Listed
     getSoldPrice(listing), // Sold price
     "", // Date sold
     getDiscountFormula(), // Discounting
@@ -57,7 +57,7 @@ export const sheetsListingToRawListing = (
     String(listing.baths), // Baths
     String(listing.advertisedPrice), // Advertised Price
     String(listing.initialPrice), //  Initial Price
-    String(listing.dateListed), // Date Listed
+    listing.dateListed, // Date Listed
     String(listing.soldPrice), // Sold price
     listing.dateSold, // Date sold
     listing.discounting, // Discounting
@@ -171,7 +171,7 @@ const rawListingToSheetsListing = (
     baths: Number(listing[4]),
     advertisedPrice: cleanPrice(listing[5]),
     initialPrice: cleanPrice(listing[6]),
-    dateListed: new Date(listing[7]),
+    dateListed: listing[7],
     soldPrice: listing[8],
     dateSold: listing[9],
     discounting: listing[10],

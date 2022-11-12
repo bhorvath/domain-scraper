@@ -51,7 +51,7 @@ export type Listing = {
   price: number;
   auctionDate: Date;
   auctionDateRaw: Date;
-  datePlaced: Date;
+  datePlaced: string;
   dateShortlisted: number;
   geoLocation: ListingLocation;
   notes: string | null;
@@ -77,7 +77,7 @@ export type ListingFilterCriteria = Partial<{
   price: number[];
   auctionDate: Date[];
   auctionDateRaw: Date[];
-  datePlaced: Date[];
+  datePlaced: string[];
   dateShortlisted: number[];
   geoLocation: Partial<ListingLocation>[];
   notes: string[];
