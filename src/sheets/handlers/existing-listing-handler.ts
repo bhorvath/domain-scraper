@@ -1,4 +1,6 @@
+import { format } from "date-fns";
 import { Listing } from "../../types/domain";
+import { ElementPosition } from "../../types/elements";
 import { SheetsListing } from "../../types/sheets";
 import { SheetsApi } from "../api";
 import { sheetsListingToRawListing } from "../transform";
@@ -49,7 +51,10 @@ export class ExistingListingHandler {
     }
 
     if (listingsToUpdate.length > 0) {
+      console.info(`Writing ${listingsToUpdate.length} modified listings`);
       await this.writeListings(listingsToUpdate);
+    } else {
+      console.info("No modified listings to write");
     }
   }
 
@@ -63,8 +68,29 @@ export class ExistingListingHandler {
         item.persistedListing.advertisedPrice;
     }
 
+    // Add comment with previous price
+    this.commentHandler.queuePendingComment(
+      ElementPosition.Address,
+      item.persistedListing.position,
+      `${format(
+        Date.now(),
+        "dd/MM/yyyy"
+      )} - Price updated to ${this.formatPrice(item.currentListing.price)}`
+    );
+
     // Update the listing price
     item.persistedListing.advertisedPrice = item.currentListing.price;
+  }
+
+  private formatPrice(price: number): string {
+    const formatter = new Intl.NumberFormat("en-AU", {
+      style: "currency",
+      currency: "AUD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+
+    return formatter.format(price);
   }
 
   private async writeListings(listings: SheetsListing[]): Promise<void> {
@@ -75,6 +101,7 @@ export class ExistingListingHandler {
       ])
     );
     await this.api.updateListings(mappedListings);
+    this.commentHandler.writePendingComments();
   }
 
   /**

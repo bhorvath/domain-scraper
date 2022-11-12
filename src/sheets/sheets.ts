@@ -2,7 +2,7 @@ import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
 import { Listing } from "../types/domain";
 import { SheetsListing } from "../types/sheets";
-import { SheetsApi } from "./api";
+import { SheetsApi, SheetsApiConfig } from "./api";
 import { ExistingListingHandler } from "./handlers/existing-listing-handler";
 import { NewListingHandler } from "./handlers/new-listing-handler.ts";
 import { SetupHandler } from "./handlers/setup-handler";
@@ -14,9 +14,9 @@ export class Sheets {
   private newListingHandler: NewListingHandler;
   private existingListingHandler: ExistingListingHandler;
 
-  constructor(auth: OAuth2Client, spreadsheetId: string) {
+  constructor(auth: OAuth2Client, apiConfig: SheetsApiConfig) {
     const sheets = google.sheets({ version: "v4", auth });
-    this.api = new SheetsApi(sheets, spreadsheetId);
+    this.api = new SheetsApi(sheets, apiConfig);
     this.setupHandler = new SetupHandler(this.api);
     this.newListingHandler = new NewListingHandler(this.api);
     this.existingListingHandler = new ExistingListingHandler(this.api);
@@ -75,7 +75,6 @@ export class Sheets {
   }
 
   private mapListings(listings: SheetsListing[]): Map<number, SheetsListing> {
-    console.log("sheets listing", listings);
     return new Map(listings.map((listing) => [listing.id, listing]));
   }
 }

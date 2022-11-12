@@ -1,6 +1,6 @@
 import { Listing } from "../types/domain";
 import { RawListing, SheetsListing } from "../types/sheets";
-import { Element } from "./element";
+import { Element } from "../types/elements";
 import {
   AND,
   DATEDIF,

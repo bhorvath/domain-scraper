@@ -18,9 +18,13 @@ export class NewListingHandler {
    * Writes any queued new listings to the sheet.
    */
   public async writeListings(): Promise<void> {
-    console.info(`Writing ${this.queue.length} new listings`);
-    const listingsToWrite = listingsToRawListings(this.queue);
-    await this.api.writeListings(listingsToWrite);
+    if (this.queue.length) {
+      console.info(`Writing ${this.queue.length} new listings`);
+      const listingsToWrite = listingsToRawListings(this.queue);
+      await this.api.writeListings(listingsToWrite);
+    } else {
+      console.info("No new listings to write");
+    }
   }
 
   /**

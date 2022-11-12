@@ -1,3 +1,11 @@
+export enum ElementPosition {
+  Address = "A",
+  Distance = "B",
+  Land = "C",
+  Beds = "D",
+  Baths = "E",
+}
+
 export enum Element {
   AdvertisedPrice = 'INDIRECT(CONCAT("F",ROW()))',
   InitialPrice = 'INDIRECT(CONCAT("G",ROW()))',
@@ -6,5 +14,3 @@ export enum Element {
   DateSold = 'INDIRECT(CONCAT("J",ROW()))',
   Discounting = 'INDIRECT(CONCAT("K",ROW()))',
 }
-
-export const Function = {};

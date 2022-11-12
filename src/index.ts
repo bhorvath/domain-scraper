@@ -26,12 +26,26 @@ const getSheetsSpreadsheetId = (): string => {
   return spreadsheetId;
 };
 
+const getSheetsMainSheetName = (): string => {
+  const spreadsheetId = process.env.SHEETS_MAIN_SHEET_NAME;
+
+  if (!spreadsheetId) {
+    throw new Error("Could not find Sheets main sheet name");
+  }
+
+  return spreadsheetId;
+};
+
 (async () => {
   const domainAuthToken = getDomainAuthToken();
   const sheetsSpreadsheetId = getSheetsSpreadsheetId();
+  const sheetsMainSheetName = getSheetsMainSheetName();
 
   const filterCriteria: ListingFilterCriteria = {
-    listingType: "sold",
+    listingType: "buy",
+    // address: {
+    //   street: "21 Aster Court",
+    // },
     features: {
       beds: 4,
       baths: 3,
@@ -45,7 +59,11 @@ const getSheetsSpreadsheetId = (): string => {
   try {
     const auth = await authoriseSheets();
 
-    const sheets = new Sheets(auth, sheetsSpreadsheetId);
+    const config = {
+      spreadsheetId: sheetsSpreadsheetId,
+      mainSheetName: sheetsMainSheetName,
+    };
+    const sheets = new Sheets(auth, config);
     await sheets.updateListings(listings);
   } catch (e) {
     console.error(e);
