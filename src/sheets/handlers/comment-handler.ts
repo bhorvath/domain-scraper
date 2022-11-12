@@ -3,7 +3,7 @@ import { ElementPosition } from "../../types/elements";
 import { SheetsApi } from "../api";
 
 export class CommentHandler {
-  private pendingCommentsQueue: PendingComment[] = [];
+  private queue: PendingComment[] = [];
 
   constructor(private api: SheetsApi) {}
 
@@ -15,7 +15,7 @@ export class CommentHandler {
     row: number,
     comment: string
   ): void {
-    this.pendingCommentsQueue.push({ column, row, comment });
+    this.queue.push({ column, row, comment });
   }
 
   /**
@@ -23,7 +23,7 @@ export class CommentHandler {
    */
   public async writePendingComments(): Promise<void> {
     const updatedComments: PendingComment[] = await Promise.all(
-      this.pendingCommentsQueue.map(async (pendingComment) => ({
+      this.queue.map(async (pendingComment) => ({
         column: pendingComment.column,
         row: pendingComment.row,
         comment: await this.appendComment(pendingComment),
@@ -50,6 +50,6 @@ export class CommentHandler {
    * Clears the pending comment queue.
    */
   public clearQueue(): void {
-    this.pendingCommentsQueue = [];
+    this.queue = [];
   }
 }

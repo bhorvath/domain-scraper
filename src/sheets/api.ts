@@ -1,10 +1,11 @@
 import { sheets_v4 } from "googleapis";
 import { PendingComment } from "../types/comments";
-import { RawListing } from "../types/sheets";
+import { RawHistory, RawListing } from "../types/sheets";
 
 export type SheetsApiConfig = {
   spreadsheetId: string;
   mainSheetName: string;
+  historySheetName: string;
 };
 
 export class SheetsApi {
@@ -124,5 +125,21 @@ export class SheetsApi {
     }
 
     throw new Error("Invalid position given for comment");
+  }
+
+  public async insertHistory(history: RawHistory[]) {
+    const request: sheets_v4.Params$Resource$Spreadsheets$Values$Append = {
+      spreadsheetId: this.config.spreadsheetId,
+      range: this.config.historySheetName,
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        majorDimension: "ROWS",
+        values: history,
+      },
+    };
+
+    const response = (await this.sheets.spreadsheets.values.append(request))
+      .data;
+    // console.log("response", response);
   }
 }

@@ -27,19 +27,35 @@ const getSheetsSpreadsheetId = (): string => {
 };
 
 const getSheetsMainSheetName = (): string => {
-  const spreadsheetId = process.env.SHEETS_MAIN_SHEET_NAME;
+  const sheetName = process.env.SHEETS_MAIN_SHEET_NAME;
 
-  if (!spreadsheetId) {
+  if (!sheetName) {
     throw new Error("Could not find Sheets main sheet name");
   }
 
-  return spreadsheetId;
+  return sheetName;
+};
+
+const getSheetsHistorySheetName = (): string => {
+  const sheetName = process.env.SHEETS_HISTORY_SHEET_NAME;
+
+  if (!sheetName) {
+    throw new Error("Could not find Sheets history sheet name");
+  }
+
+  return sheetName;
+};
+
+const getSheetsConfig = () => {
+  return {
+    spreadsheetId: getSheetsSpreadsheetId(),
+    mainSheetName: getSheetsMainSheetName(),
+    historySheetName: getSheetsHistorySheetName(),
+  };
 };
 
 (async () => {
   const domainAuthToken = getDomainAuthToken();
-  const sheetsSpreadsheetId = getSheetsSpreadsheetId();
-  const sheetsMainSheetName = getSheetsMainSheetName();
 
   const filterCriteria: ListingFilterCriteria = {
     listingType: "buy",
@@ -59,11 +75,7 @@ const getSheetsMainSheetName = (): string => {
   try {
     const auth = await authoriseSheets();
 
-    const config = {
-      spreadsheetId: sheetsSpreadsheetId,
-      mainSheetName: sheetsMainSheetName,
-    };
-    const sheets = new Sheets(auth, config);
+    const sheets = new Sheets(auth, getSheetsConfig());
     await sheets.updateListings(listings);
   } catch (e) {
     console.error(e);

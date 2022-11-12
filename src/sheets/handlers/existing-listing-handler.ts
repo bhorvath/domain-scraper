@@ -5,6 +5,7 @@ import { SheetsListing } from "../../types/sheets";
 import { SheetsApi } from "../api";
 import { sheetsListingToRawListing } from "../transform";
 import { CommentHandler } from "./comment-handler";
+import { HistoryHandler } from "./history-handler";
 
 type QueueItem = {
   persistedListing: SheetsListing;
@@ -14,9 +15,11 @@ type QueueItem = {
 export class ExistingListingHandler {
   private queue: QueueItem[] = [];
   private commentHandler: CommentHandler;
+  private historyHandler: HistoryHandler;
 
   constructor(private api: SheetsApi) {
     this.commentHandler = new CommentHandler(api);
+    this.historyHandler = new HistoryHandler(api);
   }
 
   /**
@@ -68,14 +71,21 @@ export class ExistingListingHandler {
         item.persistedListing.advertisedPrice;
     }
 
-    // Add comment with previous price
+    const description = `Price updated to ${this.formatPrice(
+      item.currentListing.price
+    )}`;
+
+    // Add comment with price change
     this.commentHandler.queuePendingComment(
       ElementPosition.Address,
       item.persistedListing.position,
-      `${format(
-        Date.now(),
-        "dd/MM/yyyy"
-      )} - Price updated to ${this.formatPrice(item.currentListing.price)}`
+      `${format(Date.now(), "dd/MM/yyyy")} - ${description}`
+    );
+
+    // Add history with price change
+    this.historyHandler.queuePendingHistory(
+      item.persistedListing.address,
+      description
     );
 
     // Update the listing price
@@ -102,6 +112,7 @@ export class ExistingListingHandler {
     );
     await this.api.updateListings(mappedListings);
     this.commentHandler.writePendingComments();
+    this.historyHandler.writePendingHistory();
   }
 
   /**
