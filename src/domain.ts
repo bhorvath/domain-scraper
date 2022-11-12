@@ -63,23 +63,40 @@ const matchesCriteria = (listing: any, filterCriteria: any): boolean => {
   >;
 
   for (const key of keys) {
-    const criteriaValue = filterCriteria[key];
     const listingValue = listing[key];
-
-    if (hasChildren(criteriaValue)) {
-      // Look deeper if the value is an object
-      const deepMatches = matchesCriteria(listingValue, criteriaValue);
-      if (!deepMatches) {
-        return false;
+    const criteriaValues = filterCriteria[key];
+    // Always make sure we get a match on at least one criteria - eg. ["buy", "sold"] must match on
+    // one of the two values; ["buy"] must match on the single value.
+    let matches = 0;
+    if (Array.isArray(criteriaValues)) {
+      for (const criteriaValue of criteriaValues) {
+        matches = matches + findMatches(listingValue, criteriaValue);
       }
     } else {
-      if (listingValue !== criteriaValue) {
-        return false;
-      }
+      matches = findMatches(listingValue, criteriaValues);
+    }
+    if (!matches) {
+      return false;
     }
   }
 
   return true;
+};
+
+const findMatches = (listingValue: any, criteriaValue: any): number => {
+  if (hasChildren(criteriaValue)) {
+    // Look deeper if the value is an object
+    const deepMatches = matchesCriteria(listingValue, criteriaValue);
+    if (deepMatches) {
+      return 1;
+    }
+  } else {
+    if (listingValue === criteriaValue) {
+      return 1;
+    }
+  }
+
+  return 0;
 };
 
 const hasChildren = (

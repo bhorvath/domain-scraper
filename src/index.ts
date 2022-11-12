@@ -58,14 +58,18 @@ const getSheetsConfig = () => {
   const domainAuthToken = getDomainAuthToken();
 
   const filterCriteria: ListingFilterCriteria = {
-    listingType: "buy",
-    // address: {
-    //   street: "21 Aster Court",
-    // },
-    features: {
-      beds: 4,
-      baths: 3,
-    },
+    listingType: ["buy", "sold"],
+    // address: [
+    //   {
+    //     street: "21 Aster Court",
+    //   },
+    // ],
+    features: [
+      {
+        beds: 5,
+        baths: 3,
+      },
+    ],
   };
 
   const listings = await getShortlistListings(domainAuthToken, filterCriteria);

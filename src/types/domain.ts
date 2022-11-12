@@ -62,4 +62,28 @@ export type Listing = {
   propertyTypes: ListingPropertyType[];
 };
 
-export type ListingFilterCriteria = PartialDeep<Listing>;
+export type ListingFilterCriteria = Partial<{
+  id: number[];
+  listingType?: ListingType[];
+  isNewDevelopement: boolean[];
+  status: Partial<ListingStatus>[];
+  cardImageUrl: string[];
+  headerImageUrl: string[];
+  url: string[];
+  images: string[][];
+  address: Partial<ListingAddress>[];
+  features: Partial<ListingFeatures>[];
+  displayPrice: string[];
+  price: number[];
+  auctionDate: Date[];
+  auctionDateRaw: Date[];
+  datePlaced: Date[];
+  dateShortlisted: number[];
+  geoLocation: Partial<ListingLocation>[];
+  notes: string[];
+  rentalApplication: string[];
+  user: Partial<ListingUser>[];
+  isArchived: boolean[];
+  propertyId: string[];
+  propertyTypes: Partial<ListingPropertyType>[][];
+}>;
