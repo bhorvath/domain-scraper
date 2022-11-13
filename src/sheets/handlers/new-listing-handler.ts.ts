@@ -1,11 +1,16 @@
+import { GoogleMapsApi } from "../../google-maps/api";
 import { Listing } from "../../types/domain";
 import { SheetsApi } from "../api";
-import { listingsToRawListings } from "../transform";
+import { enrichedListingsToRawListings } from "../transform";
+import { EnrichmentHandler } from "./enrichment-handler";
 
 export class NewListingHandler {
   private queue: Listing[] = [];
 
-  constructor(private api: SheetsApi) {}
+  constructor(
+    private api: SheetsApi,
+    private enrichmentHandler: EnrichmentHandler
+  ) {}
 
   /**
    * Queues a new listing to be added to the sheet.
@@ -20,7 +25,11 @@ export class NewListingHandler {
   public async writeListings(): Promise<void> {
     if (this.queue.length) {
       console.info(`Writing ${this.queue.length} new listings`);
-      const listingsToWrite = listingsToRawListings(this.queue);
+      const enrichedListings = await this.enrichmentHandler.enrichListings(
+        this.queue
+      );
+      const listingsToWrite = enrichedListingsToRawListings(enrichedListings);
+      // console.log("listingsToWrite", listingsToWrite);
       await this.api.writeListings(listingsToWrite);
     } else {
       console.info("No new listings to write");

@@ -7,7 +7,7 @@ const shortlistUrl = "https://www.domain.com.au/user/shortlist";
 export const getShortlistListings = async (
   authToken: string,
   filterCriteria?: ListingFilterCriteria
-) => {
+): Promise<Listing[]> => {
   const page = await getPage(authToken);
   const data = extractData(page);
   const parsedData = parseData(data);

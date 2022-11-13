@@ -1,4 +1,4 @@
-import { RawListing, SheetsListing } from "../../types/sheets";
+import { RawListing } from "../../types/sheets";
 import { SheetsApi } from "../api";
 
 export class SetupHandler {

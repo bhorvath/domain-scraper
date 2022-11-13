@@ -3,6 +3,7 @@ import { getShortlistListings } from "./domain";
 import { ListingFilterCriteria } from "./types/domain";
 import { authoriseSheets } from "./sheets/auth";
 import { Sheets } from "./sheets/sheets";
+import { GoogleMapsApi } from "./google-maps/api";
 
 dotenv.config();
 
@@ -14,6 +15,32 @@ const getDomainAuthToken = (): string => {
   }
 
   return authToken;
+};
+
+const getGoogleMapsKey = () => {
+  const key = process.env.GOOGLE_MAPS_API_KEY;
+
+  if (!key) {
+    throw new Error("Could not find Google Maps API key");
+  }
+
+  return key;
+};
+
+const getOriginAddress = () => {
+  const key = process.env.ORIGIN_ADDRESS;
+
+  if (!key) {
+    throw new Error("Could not find origin address");
+  }
+
+  return key;
+};
+const getGoogleMapsConfig = () => {
+  return {
+    key: getGoogleMapsKey(),
+    originAddress: getOriginAddress(),
+  };
 };
 
 const getSheetsSpreadsheetId = (): string => {
@@ -56,6 +83,8 @@ const getSheetsConfig = () => {
 
 (async () => {
   const domainAuthToken = getDomainAuthToken();
+  const googleMapsConfig = getGoogleMapsConfig();
+  const sheetsConfig = getSheetsConfig();
 
   const filterCriteria: ListingFilterCriteria = {
     listingType: ["buy", "sold"],
@@ -79,7 +108,7 @@ const getSheetsConfig = () => {
   try {
     const auth = await authoriseSheets();
 
-    const sheets = new Sheets(auth, getSheetsConfig());
+    const sheets = new Sheets(auth, sheetsConfig, googleMapsConfig);
     await sheets.updateListings(listings);
   } catch (e) {
     console.error(e);

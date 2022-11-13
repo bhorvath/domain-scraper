@@ -11,6 +11,7 @@ import {
   NOT,
   TODAY,
 } from "./functions";
+import { EnrichedListing } from "../types/enrichment";
 
 export const listingsToRawListings = (listings: Listing[]): RawListing[] =>
   listings.map(listingToRawListing);
@@ -19,6 +20,37 @@ const listingToRawListing = (listing: Listing): RawListing => {
   return [
     `${listing.address.street}, ${listing.address.suburb}`, // Address
     "", // Distance
+    "", // Land
+    String(listing.features.beds), // Beds
+    String(listing.features.baths), // Baths
+    String(listing.price), // Advertised Price
+    "", //  Initial Price
+    listing.datePlaced, // Date Listed
+    getSoldPrice(listing), // Sold price
+    "", // Date sold
+    getDiscountFormula(), // Discounting
+    getDiscountPercentageFormula(), // Disc. %
+    getDaysListedFormula(), // Days Listed
+    listing.url, // URL
+    getEstPriceFormula(), // Est. Price
+    "", // Last Sold Price
+    "", // Last Sold Date
+    "", // Difference
+    "", // Years Since Sold
+    "", // CAGR
+    String(listing.id), // ID
+    "", // Comments
+  ];
+};
+
+export const enrichedListingsToRawListings = (
+  listings: EnrichedListing[]
+): RawListing[] => listings.map(enrichedListingToRawListing);
+
+const enrichedListingToRawListing = (listing: EnrichedListing): RawListing => {
+  return [
+    `${listing.address.street}, ${listing.address.suburb}`, // Address
+    listing.distance, // Distance
     "", // Land
     String(listing.features.beds), // Beds
     String(listing.features.baths), // Baths

@@ -70,9 +70,9 @@ export class SheetsApi {
       includeGridData: true,
     };
 
-    // This is ugly but I don't care. The Google Sheets API makes me cry.
-    const response = (await this.sheets.spreadsheets.get(request)).data as any;
-    const notes = response?.sheets[0].data[0].rowData[0].values[0].note ?? "";
+    const response = (await this.sheets.spreadsheets.get(request)).data;
+    const notes =
+      response?.sheets?.[0].data?.[0].rowData?.[0].values?.[0].note ?? "";
 
     return notes;
   }
