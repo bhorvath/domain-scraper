@@ -1,6 +1,6 @@
 import axios from "axios";
 import { load } from "cheerio";
-import { Listing, ListingFilterCriteria } from "./types/domain";
+import { Listing, ListingFilterCriteria } from "../types/domain";
 
 const shortlistUrl = "https://www.domain.com.au/user/shortlist";
 

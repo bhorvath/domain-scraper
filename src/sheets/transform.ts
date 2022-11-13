@@ -51,7 +51,7 @@ const enrichedListingToRawListing = (listing: EnrichedListing): RawListing => {
   return [
     `${listing.address.street}, ${listing.address.suburb}`, // Address
     listing.distance, // Distance
-    "", // Land
+    listing.land, // Land
     String(listing.features.beds), // Beds
     String(listing.features.baths), // Baths
     String(listing.price), // Advertised Price

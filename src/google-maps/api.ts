@@ -31,8 +31,8 @@ export class GoogleMapsApi {
       destination,
       key: this.config.key,
     };
-    const response = await this.client.directions({ params });
+    const response = (await this.client.directions({ params })).data;
 
-    return response.data;
+    return response;
   }
 }

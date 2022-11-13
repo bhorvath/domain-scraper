@@ -1,9 +1,10 @@
 import * as dotenv from "dotenv";
-import { getShortlistListings } from "./domain";
+import { getShortlistListings } from "./domain/domain";
 import { ListingFilterCriteria } from "./types/domain";
 import { authoriseSheets } from "./sheets/auth";
 import { Sheets } from "./sheets/sheets";
 import { GoogleMapsApi } from "./google-maps/api";
+import { DomainApi } from "./domain/api";
 
 dotenv.config();
 
@@ -15,6 +16,22 @@ const getDomainAuthToken = (): string => {
   }
 
   return authToken;
+};
+
+const getDomainApiKey = (): string => {
+  const key = process.env.DOMAIN_API_KEY;
+
+  if (!key) {
+    throw new Error("Could not find Domain API key");
+  }
+
+  return key;
+};
+
+const getDomainConfig = () => {
+  return {
+    key: getDomainApiKey(),
+  };
 };
 
 const getGoogleMapsKey = () => {
@@ -83,6 +100,7 @@ const getSheetsConfig = () => {
 
 (async () => {
   const domainAuthToken = getDomainAuthToken();
+  const domainConfig = getDomainConfig();
   const googleMapsConfig = getGoogleMapsConfig();
   const sheetsConfig = getSheetsConfig();
 
@@ -108,7 +126,12 @@ const getSheetsConfig = () => {
   try {
     const auth = await authoriseSheets();
 
-    const sheets = new Sheets(auth, sheetsConfig, googleMapsConfig);
+    const sheets = new Sheets(
+      auth,
+      sheetsConfig,
+      domainConfig,
+      googleMapsConfig
+    );
     await sheets.updateListings(listings);
   } catch (e) {
     console.error(e);

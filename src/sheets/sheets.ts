@@ -1,5 +1,6 @@
 import { OAuth2Client } from "google-auth-library";
 import { google } from "googleapis";
+import { DomainApi, DomainApiConfig } from "../domain/api";
 import { GoogleMapsApi, GoogleMapsApiConfig } from "../google-maps/api";
 import { Listing } from "../types/domain";
 import { SheetsListing } from "../types/sheets";
@@ -19,13 +20,15 @@ export class Sheets {
   constructor(
     auth: OAuth2Client,
     apiConfig: SheetsApiConfig,
+    domainApiConfig: DomainApiConfig,
     googleMapsApiConfig: GoogleMapsApiConfig
   ) {
     const sheets = google.sheets({ version: "v4", auth });
     this.api = new SheetsApi(sheets, apiConfig);
     this.setupHandler = new SetupHandler(this.api);
+    const domainApi = new DomainApi(domainApiConfig);
     const mapsApi = new GoogleMapsApi(googleMapsApiConfig);
-    const enrichmentHandler = new EnrichmentHandler(mapsApi);
+    const enrichmentHandler = new EnrichmentHandler(domainApi, mapsApi);
     this.newListingHandler = new NewListingHandler(this.api, enrichmentHandler);
     this.existingListingHandler = new ExistingListingHandler(this.api);
   }
