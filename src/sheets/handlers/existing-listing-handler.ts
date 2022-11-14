@@ -43,8 +43,18 @@ export class ExistingListingHandler {
       const currentListing = item.currentListing;
       let listingRequiresUpdate = false;
 
+      // Price
       if (persistedListing.advertisedPrice !== currentListing.price) {
         this.handlePriceChange(item);
+        listingRequiresUpdate = true;
+      }
+
+      // Inspection time (only add history if new value is not null)
+      if (
+        currentListing.inspectionDate &&
+        persistedListing.inspection !== currentListing.inspectionDate.openTime
+      ) {
+        this.handleNewInspectionTime(item);
         listingRequiresUpdate = true;
       }
 
@@ -74,21 +84,10 @@ export class ExistingListingHandler {
     const description = `Price updated to ${this.formatPrice(
       item.currentListing.price
     )}`;
+    this.addComment(item.persistedListing.position, description);
+    this.addHistory(item.persistedListing.address, description);
 
-    // Add comment with price change
-    this.commentHandler.queuePendingComment(
-      ElementPosition.Address,
-      item.persistedListing.position,
-      `${format(Date.now(), "dd/MM/yyyy")} - ${description}`
-    );
-
-    // Add history with price change
-    this.historyHandler.queuePendingHistory(
-      item.persistedListing.address,
-      description
-    );
-
-    // Update the listing price
+    // Update the listing
     item.persistedListing.advertisedPrice = item.currentListing.price;
   }
 
@@ -101,6 +100,30 @@ export class ExistingListingHandler {
     });
 
     return formatter.format(price);
+  }
+
+  private handleNewInspectionTime(item: QueueItem) {
+    console.info(`New inspection time for ${item.persistedListing.address}`);
+
+    const description = `Inspection time: ${item.currentListing.inspectionDate?.openTime}`;
+    this.addComment(item.persistedListing.position, description);
+    this.addHistory(item.persistedListing.address, description);
+
+    // Update the listing
+    item.persistedListing.inspection =
+      item.currentListing.inspectionDate?.openTime ?? "";
+  }
+
+  private addComment(position: number, description: string): void {
+    this.commentHandler.queuePendingComment(
+      ElementPosition.Address,
+      position,
+      `${format(Date.now(), "dd/MM/yyyy")} - ${description}`
+    );
+  }
+
+  private addHistory(address: string, description: string): void {
+    this.historyHandler.queuePendingHistory(address, description);
   }
 
   private async writeListings(listings: SheetsListing[]): Promise<void> {
