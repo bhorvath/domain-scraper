@@ -21,10 +21,12 @@ export type SheetsListing = {
   yearsSinceSold: number | undefined;
   cagr: number | undefined;
   id: number;
+  displayPrice: string;
   comments: string;
 };
 
 export type RawListing = [
+  string,
   string,
   string,
   string,

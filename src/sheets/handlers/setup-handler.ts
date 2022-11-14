@@ -31,7 +31,8 @@ export class SetupHandler {
       "Years Since Sold",
       "CAGR",
       "ID",
-      "Est. Price",
+      "Display Price",
+      "Comments",
     ];
   }
 }

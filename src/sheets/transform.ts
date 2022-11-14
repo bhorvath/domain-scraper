@@ -39,6 +39,7 @@ const listingToRawListing = (listing: Listing): RawListing => {
     "", // Years Since Sold
     "", // CAGR
     String(listing.id), // ID
+    listing.displayPrice, // Display Price
     "", // Comments
   ];
 };
@@ -70,6 +71,7 @@ const enrichedListingToRawListing = (listing: EnrichedListing): RawListing => {
     "", // Years Since Sold
     "", // CAGR
     String(listing.id), // ID
+    listing.displayPrice, // Display Price
     "", // Comments
   ];
 };
@@ -103,6 +105,7 @@ export const sheetsListingToRawListing = (
     "", // Years Since Sold
     "", // CAGR
     String(listing.id), // ID
+    listing.displayPrice, // Display Price
     "", // Comments
   ];
 };
@@ -217,7 +220,8 @@ const rawListingToSheetsListing = (
     yearsSinceSold: Number(listing[18]),
     cagr: Number(listing[19]),
     id: Number(listing[20]),
-    comments: listing[21],
+    displayPrice: listing[21],
+    comments: listing[22],
   };
 };
 
