@@ -61,6 +61,16 @@ export class ExistingListingHandler {
       if (listingRequiresUpdate) {
         listingsToUpdate.push(persistedListing);
       }
+
+      // Display Price
+      if (persistedListing.displayPrice !== currentListing.displayPrice) {
+        this.handleDisplayPriceChange(item);
+        listingRequiresUpdate = true;
+      }
+
+      if (listingRequiresUpdate) {
+        listingsToUpdate.push(persistedListing);
+      }
     }
 
     if (listingsToUpdate.length > 0) {
@@ -81,13 +91,10 @@ export class ExistingListingHandler {
         item.persistedListing.advertisedPrice;
     }
 
-    const description = `Price updated to ${this.formatPrice(
-      item.currentListing.price
-    )}`;
+    const description = `Price: ${this.formatPrice(item.currentListing.price)}`;
     this.addComment(item.persistedListing.position, description);
     this.addHistory(item.persistedListing.address, description);
 
-    // Update the listing
     item.persistedListing.advertisedPrice = item.currentListing.price;
   }
 
@@ -109,9 +116,18 @@ export class ExistingListingHandler {
     this.addComment(item.persistedListing.position, description);
     this.addHistory(item.persistedListing.address, description);
 
-    // Update the listing
     item.persistedListing.inspection =
       item.currentListing.inspectionDate?.openTime ?? "";
+  }
+
+  private handleDisplayPriceChange(item: QueueItem) {
+    console.info(`Display price changed for ${item.persistedListing.address}`);
+
+    const description = `Display Price: ${item.currentListing.displayPrice}`;
+    this.addComment(item.persistedListing.position, description);
+    this.addHistory(item.persistedListing.address, description);
+
+    item.persistedListing.displayPrice = item.currentListing.displayPrice;
   }
 
   private addComment(position: number, description: string): void {
