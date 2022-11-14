@@ -36,7 +36,7 @@ export class ExistingListingHandler {
    * Processes existing listings. Check for changes and update as needed.
    */
   public async processListings(): Promise<void> {
-    const listingsToUpdate: SheetsListing[] = [];
+    const listingsToUpdate: Set<SheetsListing> = new Set();
 
     for (const item of this.queue) {
       const persistedListing = item.persistedListing;
@@ -59,7 +59,7 @@ export class ExistingListingHandler {
       }
 
       if (listingRequiresUpdate) {
-        listingsToUpdate.push(persistedListing);
+        listingsToUpdate.add(persistedListing);
       }
 
       // Display Price
@@ -69,13 +69,13 @@ export class ExistingListingHandler {
       }
 
       if (listingRequiresUpdate) {
-        listingsToUpdate.push(persistedListing);
+        listingsToUpdate.add(persistedListing);
       }
     }
 
-    if (listingsToUpdate.length > 0) {
-      console.info(`Writing ${listingsToUpdate.length} modified listings`);
-      await this.writeListings(listingsToUpdate);
+    if (listingsToUpdate.size > 0) {
+      console.info(`Writing ${listingsToUpdate.size} modified listings`);
+      await this.writeListings(Array.from(listingsToUpdate));
     } else {
       console.info("No modified listings to write");
     }
