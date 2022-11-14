@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { format, isEqual } from "date-fns";
 import { Listing } from "../../types/domain";
 import { ElementPosition } from "../../types/elements";
 import { SheetsListing } from "../../types/sheets";
@@ -52,7 +52,10 @@ export class ExistingListingHandler {
       // Inspection time (only add history if new value is not null)
       if (
         currentListing.inspectionDate &&
-        persistedListing.inspection !== currentListing.inspectionDate.openTime
+        !isEqual(
+          new Date(persistedListing.inspection),
+          new Date(currentListing.inspectionDate.openTime)
+        )
       ) {
         this.handleNewInspectionTime(item);
         listingRequiresUpdate = true;
