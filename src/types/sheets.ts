@@ -23,10 +23,12 @@ export type SheetsListing = {
   id: number;
   status: string;
   displayPrice: string;
+  inspection: string;
   comments: string;
 };
 
 export type RawListing = [
+  string,
   string,
   string,
   string,

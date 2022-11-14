@@ -33,6 +33,7 @@ export class SetupHandler {
       "ID",
       "Status",
       "Display Price",
+      "Inspection Time",
       "Comments",
     ];
   }

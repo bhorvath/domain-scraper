@@ -41,6 +41,7 @@ const listingToRawListing = (listing: Listing): RawListing => {
     String(listing.id), // ID
     listing.status, // Status
     listing.displayPrice, // Display Price
+    listing.inspectionDate?.openTime ?? "", // Inspection
     "", // Comments
   ];
 };
@@ -74,6 +75,7 @@ const enrichedListingToRawListing = (listing: EnrichedListing): RawListing => {
     String(listing.id), // ID
     listing.status, // Status
     listing.displayPrice, // Display Price
+    listing.inspectionDate?.openTime ?? "", // Inspection
     "", // Comments
   ];
 };
@@ -109,6 +111,7 @@ export const sheetsListingToRawListing = (
     String(listing.id), // ID
     listing.status, // Status
     listing.displayPrice, // Display Price
+    listing.inspection, // Inspection
     "", // Comments
   ];
 };
@@ -223,9 +226,10 @@ const rawListingToSheetsListing = (
     yearsSinceSold: Number(listing[18]),
     cagr: Number(listing[19]),
     id: Number(listing[20]),
-    status: listing[22],
-    displayPrice: listing[21],
-    comments: listing[23],
+    status: listing[21],
+    displayPrice: listing[22],
+    inspection: listing[23],
+    comments: listing[24],
   };
 };
 

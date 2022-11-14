@@ -34,6 +34,11 @@ type ListingUser = {
   userId: number;
 };
 
+type InspectionDate = {
+  openTime: string;
+  closeTime: string;
+};
+
 type ListingPropertyType = "house" | "apartmentUnitFlat" | "townhouse";
 
 export type Listing = {
@@ -57,6 +62,7 @@ export type Listing = {
   notes: string | null;
   rentalApplication: string | null;
   user: ListingUser;
+  inspectionDate: InspectionDate | null;
   isArchived: boolean;
   propertyId: string;
   propertyTypes: ListingPropertyType[];
@@ -83,6 +89,7 @@ export type ListingFilterCriteria = Partial<{
   notes: string[];
   rentalApplication: string[];
   user: Partial<ListingUser>[];
+  inspectionDate: Partial<InspectionDate>[];
   isArchived: boolean[];
   propertyId: string[];
   propertyTypes: Partial<ListingPropertyType>[][];
