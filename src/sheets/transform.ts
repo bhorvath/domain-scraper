@@ -104,7 +104,7 @@ export const sheetsListingToRawListing = (
     listing.url, // URL
     listing.estimatedPrice, // Est. Price
     String(listing.lastSoldPrice), // Last Sold Price
-    String(listing.lastSoldDate), // Last Sold Date
+    listing.lastSoldDate ?? "", // Last Sold Date
     "", // Difference
     "", // Years Since Sold
     "", // CAGR
@@ -220,9 +220,9 @@ const rawListingToSheetsListing = (
     daysListed: listing[12],
     url: listing[13],
     estimatedPrice: listing[14],
-    lastSoldPrice: cleanPrice(listing[15]),
-    lastSoldDate: new Date(listing[16]),
-    difference: Number(listing[18]),
+    lastSoldPrice: listing[15],
+    lastSoldDate: listing[16],
+    difference: Number(listing[17]),
     yearsSinceSold: Number(listing[18]),
     cagr: Number(listing[19]),
     id: Number(listing[20]),

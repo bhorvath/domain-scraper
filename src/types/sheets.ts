@@ -15,8 +15,8 @@ export type SheetsListing = {
   daysListed: string;
   url: string;
   estimatedPrice: string;
-  lastSoldPrice: number | undefined;
-  lastSoldDate: Date | undefined;
+  lastSoldPrice: string;
+  lastSoldDate: string;
   difference: number | undefined;
   yearsSinceSold: number | undefined;
   cagr: number | undefined;
