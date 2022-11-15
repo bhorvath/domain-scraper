@@ -74,6 +74,16 @@ export class ExistingListingHandler {
       if (listingRequiresUpdate) {
         listingsToUpdate.add(persistedListing);
       }
+
+      // Status
+      if (persistedListing.status !== currentListing.status) {
+        this.handleStatusChange(item);
+        listingRequiresUpdate = true;
+      }
+
+      if (listingRequiresUpdate) {
+        listingsToUpdate.add(persistedListing);
+      }
     }
 
     if (listingsToUpdate.size > 0) {
@@ -131,6 +141,33 @@ export class ExistingListingHandler {
     this.addHistory(item.persistedListing.address, description);
 
     item.persistedListing.displayPrice = item.currentListing.displayPrice;
+  }
+
+  private handleStatusChange(item: QueueItem) {
+    console.info(`Status changed for ${item.persistedListing.address}`);
+
+    let description = "";
+    switch (item.currentListing.status) {
+      case "sold":
+        const cleanPrice = item.currentListing.displayPrice.replace(
+          /SOLD - /,
+          ""
+        );
+        description = `Sold: ${cleanPrice}`;
+        item.persistedListing.soldPrice = cleanPrice;
+        item.persistedListing.dateSold = format(Date.now(), "dd/MM/yyyy");
+        break;
+      case "archived":
+        description = `Removed`;
+        break;
+      default:
+        description = `Status: ${item.currentListing.status}`;
+    }
+
+    this.addComment(item.persistedListing.position, description);
+    this.addHistory(item.persistedListing.address, description);
+
+    item.persistedListing.status = item.currentListing.status;
   }
 
   private addComment(position: number, description: string): void {
