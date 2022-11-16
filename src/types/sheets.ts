@@ -22,12 +22,14 @@ export type SheetsListing = {
   cagr: number | undefined;
   id: number;
   status: string;
+  direction: string;
   displayPrice: string;
   inspection: string;
   comments: string;
 };
 
 export type RawListing = [
+  string,
   string,
   string,
   string,

@@ -2,10 +2,11 @@ import {
   Client,
   DirectionsResponseData,
 } from "@googlemaps/google-maps-services-js";
+import { LatLng } from "spherical-geometry-js";
 
 export type GoogleMapsApiConfig = {
   key: string;
-  originAddress: string;
+  originLocation: LatLng;
 };
 
 export class GoogleMapsApi {
@@ -27,7 +28,7 @@ export class GoogleMapsApi {
 
   private async getRoute(destination: string): Promise<DirectionsResponseData> {
     const params = {
-      origin: this.config.originAddress,
+      origin: `${this.config.originLocation.latitude}, ${this.config.originLocation.longitude}`,
       destination,
       key: this.config.key,
     };

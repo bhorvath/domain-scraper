@@ -3,8 +3,9 @@ import { getShortlistListings } from "./domain/domain";
 import { ListingFilterCriteria } from "./types/domain";
 import { authoriseSheets } from "./sheets/auth";
 import { Sheets } from "./sheets/sheets";
-import { GoogleMapsApi } from "./google-maps/api";
-import { DomainApi } from "./domain/api";
+import { GoogleMapsApiConfig } from "./google-maps/api";
+import { LatLng } from "spherical-geometry-js";
+import { EnrichmentHandlerConfig } from "./sheets/handlers/enrichment-handler";
 
 dotenv.config();
 
@@ -44,19 +45,27 @@ const getGoogleMapsKey = () => {
   return key;
 };
 
-const getOriginAddress = () => {
-  const key = process.env.ORIGIN_ADDRESS;
+const getOriginLocation = (): LatLng => {
+  const latitude = process.env.ORIGIN_LAT;
+  const longitude = process.env.ORIGIN_LONG;
 
-  if (!key) {
-    throw new Error("Could not find origin address");
+  if (!latitude || !longitude) {
+    throw new Error("Could not find origin location");
   }
 
-  return key;
+  return new LatLng(latitude, longitude);
 };
-const getGoogleMapsConfig = () => {
+
+const getGoogleMapsConfig = (): GoogleMapsApiConfig => {
   return {
     key: getGoogleMapsKey(),
-    originAddress: getOriginAddress(),
+    originLocation: getOriginLocation(),
+  };
+};
+
+const getEnrichmentHandlerConfig = (): EnrichmentHandlerConfig => {
+  return {
+    originLocation: getOriginLocation(),
   };
 };
 
@@ -103,12 +112,13 @@ const getSheetsConfig = () => {
   const domainConfig = getDomainConfig();
   const googleMapsConfig = getGoogleMapsConfig();
   const sheetsConfig = getSheetsConfig();
+  const enrichmentHandlerConfig = getEnrichmentHandlerConfig();
 
   const filterCriteria: ListingFilterCriteria = {
     listingType: ["buy", "sold"],
     // address: [
     //   {
-    //     street: "21 Aster Court",
+    //     suburb: "",
     //   },
     // ],
     features: [
@@ -121,7 +131,7 @@ const getSheetsConfig = () => {
 
   const listings = await getShortlistListings(domainAuthToken, filterCriteria);
   console.info(`Found ${listings.length} shortlisted properties`);
-  // console.debug("listing", listings[0]);
+  console.debug("listing", listings[0]);
 
   try {
     const auth = await authoriseSheets();
@@ -130,7 +140,8 @@ const getSheetsConfig = () => {
       auth,
       sheetsConfig,
       domainConfig,
-      googleMapsConfig
+      googleMapsConfig,
+      enrichmentHandlerConfig
     );
     await sheets.updateListings(listings);
   } catch (e) {

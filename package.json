@@ -11,7 +11,8 @@
     "cheerio": "^1.0.0-rc.12",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.3",
-    "googleapis": "105"
+    "googleapis": "105",
+    "spherical-geometry-js": "^2.1.0"
   },
   "devDependencies": {
     "@types/node": "^18.11.8",

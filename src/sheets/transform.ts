@@ -40,6 +40,7 @@ const listingToRawListing = (listing: Listing): RawListing => {
     "", // CAGR
     String(listing.id), // ID
     listing.status, // Status
+    "", // Direction
     listing.displayPrice, // Display Price
     listing.inspectionDate?.openTime ?? "", // Inspection
     "", // Comments
@@ -74,6 +75,7 @@ const enrichedListingToRawListing = (listing: EnrichedListing): RawListing => {
     "", // CAGR
     String(listing.id), // ID
     listing.status, // Status
+    listing.direction, // Direction
     listing.displayPrice, // Display Price
     listing.inspectionDate?.openTime ?? "", // Inspection
     "", // Comments
@@ -110,6 +112,7 @@ export const sheetsListingToRawListing = (
     "", // CAGR
     String(listing.id), // ID
     listing.status, // Status
+    listing.direction, // Direction
     listing.displayPrice, // Display Price
     listing.inspection, // Inspection
     "", // Comments
@@ -227,9 +230,10 @@ const rawListingToSheetsListing = (
     cagr: Number(listing[19]),
     id: Number(listing[20]),
     status: listing[21],
-    displayPrice: listing[22],
-    inspection: listing[23],
-    comments: listing[24],
+    direction: listing[22],
+    displayPrice: listing[23],
+    inspection: listing[24],
+    comments: listing[25],
   };
 };
 

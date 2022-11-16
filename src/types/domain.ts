@@ -27,7 +27,7 @@ type ListingFeatures = {
 
 type ListingLocation = {
   latitude: number;
-  longtitude: number;
+  longitude: number;
 };
 
 type ListingUser = {

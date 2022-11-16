@@ -807,6 +807,11 @@ simple-update-notifier@^1.0.7:
   dependencies:
     semver "~7.0.0"
 
+spherical-geometry-js@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/spherical-geometry-js/-/spherical-geometry-js-2.1.0.tgz#f9a6e550dfa4f24087fee6669cbc27edf612a5b4"
+  integrity sha512-osIQKPLKIqvxm47yCZ8DyNitnRLWUYEpS1zRLCOYuP8RSVa0yeclIyM8iBDTP5EyLQ9wtHGpq/l6Ppteun3vbA==
+
 split-on-first@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/split-on-first/-/split-on-first-1.1.0.tgz#f610afeee3b12bce1d0c30425e76398b78249a5f"

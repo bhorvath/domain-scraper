@@ -5,7 +5,10 @@ import { GoogleMapsApi, GoogleMapsApiConfig } from "../google-maps/api";
 import { Listing } from "../types/domain";
 import { SheetsListing } from "../types/sheets";
 import { SheetsApi, SheetsApiConfig } from "./api";
-import { EnrichmentHandler } from "./handlers/enrichment-handler";
+import {
+  EnrichmentHandler,
+  EnrichmentHandlerConfig,
+} from "./handlers/enrichment-handler";
 import { ExistingListingHandler } from "./handlers/existing-listing-handler";
 import { NewListingHandler } from "./handlers/new-listing-handler.ts";
 import { SetupHandler } from "./handlers/setup-handler";
@@ -21,14 +24,19 @@ export class Sheets {
     auth: OAuth2Client,
     apiConfig: SheetsApiConfig,
     domainApiConfig: DomainApiConfig,
-    googleMapsApiConfig: GoogleMapsApiConfig
+    googleMapsApiConfig: GoogleMapsApiConfig,
+    enrichmentHandlerConfig: EnrichmentHandlerConfig
   ) {
     const sheets = google.sheets({ version: "v4", auth });
     this.api = new SheetsApi(sheets, apiConfig);
     this.setupHandler = new SetupHandler(this.api);
     const domainApi = new DomainApi(domainApiConfig);
     const mapsApi = new GoogleMapsApi(googleMapsApiConfig);
-    const enrichmentHandler = new EnrichmentHandler(domainApi, mapsApi);
+    const enrichmentHandler = new EnrichmentHandler(
+      domainApi,
+      mapsApi,
+      enrichmentHandlerConfig
+    );
     this.newListingHandler = new NewListingHandler(this.api, enrichmentHandler);
     this.existingListingHandler = new ExistingListingHandler(this.api);
   }
