@@ -12,40 +12,42 @@ import {
   TODAY,
 } from "./functions";
 import { EnrichedListing } from "../types/enrichment";
+import { format, parse, startOfDay } from "date-fns";
+import { parseListingDate } from "../utils/dates";
 
-export const listingsToRawListings = (listings: Listing[]): RawListing[] =>
-  listings.map(listingToRawListing);
+// export const listingsToRawListings = (listings: Listing[]): RawListing[] =>
+//   listings.map(listingToRawListing);
 
-const listingToRawListing = (listing: Listing): RawListing => {
-  return [
-    `${listing.address.street}, ${listing.address.suburb}`, // Address
-    "", // Distance
-    "", // Land
-    String(listing.features.beds), // Beds
-    String(listing.features.baths), // Baths
-    String(listing.price), // Advertised Price
-    "", //  Initial Price
-    listing.datePlaced, // Date Listed
-    getSoldPrice(listing), // Sold price
-    "", // Date sold
-    getDiscountFormula(), // Discounting
-    getDiscountPercentageFormula(), // Disc. %
-    getDaysListedFormula(), // Days Listed
-    listing.url, // URL
-    getEstPriceFormula(), // Est. Price
-    "", // Last Sold Price
-    "", // Last Sold Date
-    "", // Difference
-    "", // Years Since Sold
-    "", // CAGR
-    String(listing.id), // ID
-    listing.status, // Status
-    "", // Direction
-    listing.displayPrice, // Display Price
-    listing.inspectionDate?.openTime ?? "", // Inspection
-    "", // Comments
-  ];
-};
+// const listingToRawListing = (listing: Listing): RawListing => {
+//   return [
+//     `${listing.address.street}, ${listing.address.suburb}`, // Address
+//     "", // Distance
+//     "", // Land
+//     String(listing.features.beds), // Beds
+//     String(listing.features.baths), // Baths
+//     String(listing.price), // Advertised Price
+//     "", //  Initial Price
+//     listing.datePlaced, // Date Listed
+//     getSoldPrice(listing), // Sold price
+//     "", // Date sold
+//     getDiscountFormula(), // Discounting
+//     getDiscountPercentageFormula(), // Disc. %
+//     getDaysListedFormula(), // Days Listed
+//     listing.url, // URL
+//     getEstPriceFormula(), // Est. Price
+//     "", // Last Sold Price
+//     "", // Last Sold Date
+//     "", // Difference
+//     "", // Years Since Sold
+//     "", // CAGR
+//     String(listing.id), // ID
+//     listing.status, // Status
+//     "", // Direction
+//     listing.displayPrice, // Display Price
+//     listing.inspectionDate?.openTime ?? "", // Inspection
+//     "", // Comments
+//   ];
+// };
 
 export const enrichedListingsToRawListings = (
   listings: EnrichedListing[]
@@ -60,7 +62,8 @@ const enrichedListingToRawListing = (listing: EnrichedListing): RawListing => {
     String(listing.features.baths), // Baths
     String(listing.price), // Advertised Price
     "", //  Initial Price
-    listing.datePlaced, // Date Listed
+    // format(listing.datePlaced, "yyyy"), // Date Listed
+    format(parseListingDate(listing.datePlaced), "dd/MM/yyyy"),
     getSoldPrice(listing), // Sold price
     "", // Date sold
     getDiscountFormula(), // Discounting

@@ -1,18 +1,21 @@
 import axios from "axios";
 import { load } from "cheerio";
+import { isAfter, parse, startOfDay } from "date-fns";
 import { Listing, ListingFilterCriteria } from "../types/domain";
+import { parseListingDate } from "../utils/dates";
 
 const shortlistUrl = "https://www.domain.com.au/user/shortlist";
 
 export const getShortlistListings = async (
   authToken: string,
-  filterCriteria?: ListingFilterCriteria
+  filterCriteria?: ListingFilterCriteria,
+  oldestListingDate?: string
 ): Promise<Listing[]> => {
   const page = await getPage(authToken);
   const data = extractData(page);
   const parsedData = parseData(data);
   const listings = extractListings(parsedData);
-  const result = filter(listings, filterCriteria);
+  const result = filter(listings, filterCriteria, oldestListingDate);
   const clean = cleanse(result);
 
   return clean;
@@ -48,13 +51,40 @@ const extractListings = (data: any): Listing[] => {
 
 const filter = (
   listings: Listing[],
-  filterCriteria?: ListingFilterCriteria
+  filterCriteria?: ListingFilterCriteria,
+  oldestListingDate?: string
 ): Listing[] => {
-  if (!filterCriteria) {
+  if (!filterCriteria && !oldestListingDate) {
     return listings;
   }
 
-  return listings.filter((listing) => matchesCriteria(listing, filterCriteria));
+  let listingsWithinDateRange: Listing[];
+  if (oldestListingDate) {
+    listingsWithinDateRange = filterByOldestListingDate(
+      listings,
+      oldestListingDate
+    );
+  } else {
+    listingsWithinDateRange = listings;
+  }
+
+  return listingsWithinDateRange.filter((listing) =>
+    matchesCriteria(listing, filterCriteria)
+  );
+};
+
+const filterByOldestListingDate = (
+  listings: Listing[],
+  oldestListingDate: string
+): Listing[] => {
+  const oldestListingDateAsActualDate = parse(
+    oldestListingDate,
+    "dd/MM/yyyy",
+    startOfDay(new Date())
+  );
+  return listings.filter((listing) =>
+    isAfter(parseListingDate(listing.datePlaced), oldestListingDateAsActualDate)
+  );
 };
 
 const matchesCriteria = (listing: any, filterCriteria: any): boolean => {

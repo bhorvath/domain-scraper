@@ -15,21 +15,21 @@ import { SetupHandler } from "./handlers/setup-handler";
 import { rawListingsToSheetsListings } from "./transform";
 
 export class Sheets {
-  private api: SheetsApi;
+  private sheetsApi: SheetsApi;
   private setupHandler: SetupHandler;
   private newListingHandler: NewListingHandler;
   private existingListingHandler: ExistingListingHandler;
 
   constructor(
     auth: OAuth2Client,
-    apiConfig: SheetsApiConfig,
+    sheetsApiConfig: SheetsApiConfig,
     domainApiConfig: DomainApiConfig,
     googleMapsApiConfig: GoogleMapsApiConfig,
     enrichmentHandlerConfig: EnrichmentHandlerConfig
   ) {
     const sheets = google.sheets({ version: "v4", auth });
-    this.api = new SheetsApi(sheets, apiConfig);
-    this.setupHandler = new SetupHandler(this.api);
+    this.sheetsApi = new SheetsApi(sheets, sheetsApiConfig);
+    this.setupHandler = new SetupHandler(this.sheetsApi);
     const domainApi = new DomainApi(domainApiConfig);
     const mapsApi = new GoogleMapsApi(googleMapsApiConfig);
     const enrichmentHandler = new EnrichmentHandler(
@@ -37,8 +37,11 @@ export class Sheets {
       mapsApi,
       enrichmentHandlerConfig
     );
-    this.newListingHandler = new NewListingHandler(this.api, enrichmentHandler);
-    this.existingListingHandler = new ExistingListingHandler(this.api);
+    this.newListingHandler = new NewListingHandler(
+      this.sheetsApi,
+      enrichmentHandler
+    );
+    this.existingListingHandler = new ExistingListingHandler(this.sheetsApi);
   }
 
   public async updateListings(listings: Listing[]) {
@@ -71,7 +74,7 @@ export class Sheets {
   }
 
   private async getListings(): Promise<SheetsListing[]> {
-    return await this.api
+    return await this.sheetsApi
       .readListings()
       .then((rawListings) => rawListings ?? [])
       .then(rawListingsToSheetsListings);

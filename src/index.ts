@@ -19,6 +19,10 @@ const getDomainAuthToken = (): string => {
   return authToken;
 };
 
+const getOldestListingDate = (): string | undefined => {
+  return process.env.OLDEST_LISTING_DATE;
+};
+
 const getDomainApiKey = (): string => {
   const key = process.env.DOMAIN_API_KEY;
 
@@ -113,6 +117,7 @@ const getSheetsConfig = () => {
   const googleMapsConfig = getGoogleMapsConfig();
   const sheetsConfig = getSheetsConfig();
   const enrichmentHandlerConfig = getEnrichmentHandlerConfig();
+  const oldestListingDate = getOldestListingDate();
 
   const filterCriteria: ListingFilterCriteria = {
     listingType: ["buy", "sold"],
@@ -121,15 +126,19 @@ const getSheetsConfig = () => {
     //     suburb: "",
     //   },
     // ],
-    features: [
-      {
-        beds: 5,
-        baths: 3,
-      },
-    ],
+    // features: [
+    //   {
+    //     beds: 5,
+    //     baths: 3,
+    //   },
+    // ],
   };
 
-  const listings = await getShortlistListings(domainAuthToken, filterCriteria);
+  const listings = await getShortlistListings(
+    domainAuthToken,
+    filterCriteria,
+    oldestListingDate
+  );
   console.info(`Found ${listings.length} shortlisted properties`);
   console.debug("listing", listings[0]);
 
