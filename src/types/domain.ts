@@ -1,5 +1,3 @@
-import type { PartialDeep } from "type-fest";
-
 type ListingType = "buy" | "sold" | "rent" | "leased" | "archived";
 
 type ListingStatus =
