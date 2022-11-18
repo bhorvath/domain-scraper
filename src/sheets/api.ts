@@ -1,6 +1,7 @@
 import { sheets_v4 } from "googleapis";
 import { PendingComment } from "../types/comments";
 import { RawHistory, RawListing } from "../types/sheets";
+import { PendingTextFormat, TextFormat } from "../types/text-format";
 
 export type SheetsApiConfig = {
   spreadsheetId: string;
@@ -105,7 +106,6 @@ export class SheetsApi {
         };
       }
     );
-    // console.log("requests", requests);
 
     const request: sheets_v4.Params$Resource$Spreadsheets$Batchupdate = {
       spreadsheetId: this.config.spreadsheetId,
@@ -115,7 +115,58 @@ export class SheetsApi {
     };
 
     const response = (await this.sheets.spreadsheets.batchUpdate(request)).data;
-    // console.log("insert comments response", response);
+  }
+
+  public async updateTextFormat(pendingTextFormats: PendingTextFormat[]) {
+    const requests: sheets_v4.Schema$Request[] = pendingTextFormats.map(
+      (pendingTextFormat) => {
+        const charCode = this.positionToIndex(pendingTextFormat.column);
+
+        let fields;
+        switch (pendingTextFormat.format) {
+          case TextFormat.Strikethrough:
+            fields = "userEnteredFormat.textFormat.strikethrough";
+            break;
+          default:
+            fields = ""; // This will error but we shouldn't get here
+        }
+
+        return {
+          updateCells: {
+            range: {
+              sheetId: 0,
+              startRowIndex: pendingTextFormat.row - 1,
+              endRowIndex: pendingTextFormat.row,
+              startColumnIndex: charCode,
+              endColumnIndex: charCode + 1,
+            },
+            rows: [
+              {
+                values: [
+                  {
+                    userEnteredFormat: {
+                      textFormat: {
+                        strikethrough: true,
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+            fields,
+          },
+        };
+      }
+    );
+
+    const request: sheets_v4.Params$Resource$Spreadsheets$Batchupdate = {
+      spreadsheetId: this.config.spreadsheetId,
+      requestBody: {
+        requests,
+      },
+    };
+
+    const response = (await this.sheets.spreadsheets.batchUpdate(request)).data;
   }
 
   private positionToIndex(position: string): number {

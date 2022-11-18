@@ -19,9 +19,7 @@ export class HistoryHandler {
    * Writes any queued pending history items to the sheet.
    */
   public async writePendingHistory(): Promise<void> {
-    const rawHistory = this.api.insertHistory(
-      this.pendingHistoryToRawHistory(this.queue)
-    );
+    return this.api.insertHistory(this.pendingHistoryToRawHistory(this.queue));
   }
 
   private pendingHistoryToRawHistory(

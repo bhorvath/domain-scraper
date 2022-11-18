@@ -29,7 +29,7 @@ export class CommentHandler {
         comment: await this.appendComment(pendingComment),
       }))
     );
-    this.api.insertComments(updatedComments);
+    return this.api.insertComments(updatedComments);
   }
 
   /**

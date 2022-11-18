@@ -2,10 +2,12 @@ import { format, isEqual } from "date-fns";
 import { Listing } from "../../types/domain";
 import { ElementPosition } from "../../types/elements";
 import { SheetsListing } from "../../types/sheets";
+import { TextFormat } from "../../types/text-format";
 import { SheetsApi } from "../api";
 import { sheetsListingToRawListing } from "../transform";
 import { CommentHandler } from "./comment-handler";
 import { HistoryHandler } from "./history-handler";
+import { TextFormatHandler } from "./text-format-handler";
 
 type QueueItem = {
   persistedListing: SheetsListing;
@@ -16,10 +18,12 @@ export class ExistingListingHandler {
   private queue: QueueItem[] = [];
   private commentHandler: CommentHandler;
   private historyHandler: HistoryHandler;
+  private textFormatHandler: TextFormatHandler;
 
   constructor(private api: SheetsApi) {
     this.commentHandler = new CommentHandler(api);
     this.historyHandler = new HistoryHandler(api);
+    this.textFormatHandler = new TextFormatHandler(api);
   }
 
   /**
@@ -156,9 +160,19 @@ export class ExistingListingHandler {
         description = `Sold: ${cleanPrice}`;
         item.persistedListing.soldPrice = cleanPrice;
         item.persistedListing.dateSold = format(Date.now(), "dd/MM/yyyy");
+        this.textFormatHandler.queuePendingTextFormat(
+          ElementPosition.Address,
+          item.persistedListing.position,
+          TextFormat.Strikethrough
+        );
         break;
       case "archived":
         description = `Removed`;
+        this.textFormatHandler.queuePendingTextFormat(
+          ElementPosition.Address,
+          item.persistedListing.position,
+          TextFormat.Strikethrough
+        );
         break;
       default:
         description = `Status: ${item.currentListing.status}`;
@@ -190,8 +204,9 @@ export class ExistingListingHandler {
       ])
     );
     await this.api.updateListings(mappedListings);
-    this.commentHandler.writePendingComments();
-    this.historyHandler.writePendingHistory();
+    await this.commentHandler.writePendingComments();
+    await this.historyHandler.writePendingHistory();
+    await this.textFormatHandler.writePendingTextFormat();
   }
 
   /**
