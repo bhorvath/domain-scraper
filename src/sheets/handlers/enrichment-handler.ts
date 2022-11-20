@@ -34,7 +34,7 @@ export class EnrichmentHandler {
     try {
       landSize = `${await this.domainApi.getLandSize(propertyId)}m2`;
     } catch (error) {
-      console.log(error);
+      console.error((error as any).toString());
       landSize = "Error getting land size";
     }
 
@@ -48,7 +48,7 @@ export class EnrichmentHandler {
         `${address.street}, ${address.suburb}`
       );
     } catch (error) {
-      console.log(error);
+      console.error(error);
       distance = "Error getting distance";
     }
 
