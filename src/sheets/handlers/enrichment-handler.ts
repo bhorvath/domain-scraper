@@ -23,7 +23,7 @@ export class EnrichmentHandler {
   private async enrichListing(listing: Listing): Promise<EnrichedListing> {
     return {
       land: await this.getLandSize(listing.propertyId),
-      distance: await this.getDistance(listing.address),
+      distance: await this.getDistance(listing.geoLocation),
       direction: this.getDirection(listing.geoLocation),
       ...listing,
     };
@@ -41,12 +41,10 @@ export class EnrichmentHandler {
     return landSize;
   }
 
-  private async getDistance(address: ListingAddress): Promise<string> {
+  private async getDistance(geoLocation: ListingLocation): Promise<string> {
     let distance: string;
     try {
-      distance = await this.googleMapsApi.getDistance(
-        `${address.street}, ${address.suburb}`
-      );
+      distance = await this.googleMapsApi.getDistance(geoLocation);
     } catch (error) {
       console.error(error);
       distance = "Error getting distance";
