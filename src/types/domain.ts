@@ -8,7 +8,7 @@ type ListingStatus =
   | "archived" // Removed
   | "recentlyUpdated";
 
-type ListingAddress = {
+export type ListingAddress = {
   street: string;
   suburb: string;
   state: string;
@@ -23,7 +23,7 @@ type ListingFeatures = {
   isRural: boolean;
 };
 
-type ListingLocation = {
+export type ListingLocation = {
   latitude: number;
   longitude: number;
 };
