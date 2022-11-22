@@ -22,6 +22,10 @@ export class CommentHandler {
    * Writes any queued pending comments to the sheet.
    */
   public async writePendingComments(): Promise<void> {
+    if (!this.queue.length) {
+      return;
+    }
+
     const updatedComments: PendingComment[] = await Promise.all(
       this.queue.map(async (pendingComment) => ({
         column: pendingComment.column,

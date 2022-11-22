@@ -24,6 +24,10 @@ export class TextFormatHandler {
    * Processes any queued pending text formats on the sheet.
    */
   public async writePendingTextFormat(): Promise<void> {
+    if (!this.queue.length) {
+      return;
+    }
+
     return this.api.updateTextFormat(this.queue);
   }
 
