@@ -120,18 +120,7 @@ const getSheetsConfig = () => {
   const oldestListingDate = getOldestListingDate();
 
   const filterCriteria: ListingFilterCriteria = {
-    listingType: ["buy", "sold"],
-    // address: [
-    //   {
-    //     suburb: "",
-    //   },
-    // ],
-    // features: [
-    //   {
-    //     beds: 5,
-    //     baths: 3,
-    //   },
-    // ],
+    listingType: ["buy", "sold", "archived"],
   };
 
   const listings = await getShortlistListings(
@@ -140,7 +129,7 @@ const getSheetsConfig = () => {
     oldestListingDate
   );
   console.info(`Found ${listings.length} shortlisted properties`);
-  console.debug("listing", listings[0]);
+  // console.debug("listing", listings[0]);
 
   try {
     const auth = await authoriseSheets();
