@@ -157,7 +157,7 @@ export class ExistingListingHandler {
         );
         description = `Sold: ${cleanPrice}`;
         item.persistedListing.soldPrice = cleanPrice;
-        item.persistedListing.dateSold = format(Date.now(), "dd/MM/yyyy");
+        // item.persistedListing.dateSold = format(Date.now(), "dd/MM/yyyy");
         this.textFormatHandler.queuePendingTextFormat(
           ElementPosition.Address,
           item.persistedListing.position,
