@@ -140,7 +140,6 @@ export class ExistingListingHandler {
     console.info(`Display price changed for ${item.persistedListing.address}`);
 
     const description = `Display Price: ${item.currentListing.displayPrice}`;
-    this.addComment(item.persistedListing.position, description);
     this.addHistory(item.persistedListing.address, description);
 
     item.persistedListing.displayPrice = item.currentListing.displayPrice;
