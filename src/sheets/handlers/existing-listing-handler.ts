@@ -130,7 +130,6 @@ export class ExistingListingHandler {
     console.info(`New inspection time for ${item.persistedListing.address}`);
 
     const description = `Inspection time: ${item.currentListing.inspectionDate?.openTime}`;
-    this.addComment(item.persistedListing.position, description);
     this.addHistory(item.persistedListing.address, description);
 
     item.persistedListing.inspection =
