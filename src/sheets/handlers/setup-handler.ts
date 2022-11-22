@@ -11,8 +11,8 @@ export class SetupHandler {
   private getHeader(): RawListing {
     return [
       "Address",
-      "Direction",
-      "Distance",
+      "Direction (km)",
+      "Distance (m2)",
       "Land",
       "Beds",
       "Baths",

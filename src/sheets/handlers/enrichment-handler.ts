@@ -17,7 +17,10 @@ export class EnrichmentHandler {
   ) {}
 
   public enrichListings(listings: Listing[]): Promise<EnrichedListing[]> {
-    return Promise.all(listings.map((listing) => this.enrichListing(listing)));
+    return Promise.all(
+      // Await on each iteration to prevent rate limiting
+      listings.map(async (listing) => await this.enrichListing(listing))
+    );
   }
 
   private async enrichListing(listing: Listing): Promise<EnrichedListing> {
@@ -32,7 +35,7 @@ export class EnrichmentHandler {
   private async getLandSize(propertyId: string): Promise<string> {
     let landSize: string;
     try {
-      landSize = `${await this.domainApi.getLandSize(propertyId)}m2`;
+      landSize = String(await this.domainApi.getLandSize(propertyId));
     } catch (error) {
       console.error((error as any).toString());
       landSize = "Error getting land size";

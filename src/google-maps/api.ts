@@ -20,7 +20,7 @@ export class GoogleMapsApi {
   public async getDistance(destination: ListingLocation): Promise<string> {
     const routeResult = await this.getRoute(destination);
     const distance = routeResult.routes[0].legs[0].distance.text.replace(
-      /\s/g,
+      / km/,
       ""
     );
 
