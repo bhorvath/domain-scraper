@@ -11,8 +11,20 @@ export class HistoryHandler {
   /**
    * Queues a pending history item to be added to the sheet.
    */
-  public queuePendingHistory(address: string, description: string): void {
-    this.queue.push({ date: Date.now(), address, description });
+  public queuePendingHistory(
+    address: string,
+    description: string,
+    previousValue?: string
+  ): void {
+    const pendingHistory: PendingHistory = {
+      date: Date.now(),
+      address,
+      description,
+    };
+    if (previousValue) {
+      pendingHistory.previousValue = previousValue;
+    }
+    this.queue.push(pendingHistory);
   }
 
   /**
@@ -33,6 +45,7 @@ export class HistoryHandler {
       format(history.date, "dd/MM/yyyy HH:mm:ss"),
       history.address,
       history.description,
+      history.previousValue ?? "",
     ]);
   }
 

@@ -110,7 +110,11 @@ export class ExistingListingHandler {
 
     const description = `Price: ${this.formatPrice(item.currentListing.price)}`;
     this.addComment(item.persistedListing.position, description);
-    this.addHistory(item.persistedListing.address, description);
+    this.addHistory(
+      item.persistedListing.address,
+      description,
+      this.formatPrice(item.persistedListing.advertisedPrice)
+    );
 
     item.persistedListing.advertisedPrice = item.currentListing.price;
   }
@@ -140,7 +144,11 @@ export class ExistingListingHandler {
     console.info(`Display price changed for ${item.persistedListing.address}`);
 
     const description = `Display Price: ${item.currentListing.displayPrice}`;
-    this.addHistory(item.persistedListing.address, description);
+    this.addHistory(
+      item.persistedListing.address,
+      description,
+      item.persistedListing.displayPrice
+    );
 
     item.persistedListing.displayPrice = item.currentListing.displayPrice;
   }
@@ -177,7 +185,11 @@ export class ExistingListingHandler {
     }
 
     this.addComment(item.persistedListing.position, description);
-    this.addHistory(item.persistedListing.address, description);
+    this.addHistory(
+      item.persistedListing.address,
+      description,
+      item.persistedListing.status
+    );
 
     item.persistedListing.status = item.currentListing.status;
   }
@@ -190,8 +202,16 @@ export class ExistingListingHandler {
     );
   }
 
-  private addHistory(address: string, description: string): void {
-    this.historyHandler.queuePendingHistory(address, description);
+  private addHistory(
+    address: string,
+    description: string,
+    previousValue?: string
+  ): void {
+    this.historyHandler.queuePendingHistory(
+      address,
+      description,
+      previousValue
+    );
   }
 
   private async writeListings(listings: SheetsListing[]): Promise<void> {
