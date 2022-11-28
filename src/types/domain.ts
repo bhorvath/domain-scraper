@@ -1,6 +1,6 @@
 type ListingType = "buy" | "sold" | "rent" | "leased" | "archived";
 
-type ListingStatus =
+export type ListingStatus =
   | "new"
   | "live"
   | "sold"

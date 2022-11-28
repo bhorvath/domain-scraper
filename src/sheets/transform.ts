@@ -1,4 +1,4 @@
-import { Listing } from "../types/domain";
+import { Listing, ListingStatus } from "../types/domain";
 import { RawListing, SheetsListing } from "../types/sheets";
 import { Element } from "../types/elements";
 import {
@@ -12,8 +12,9 @@ import {
   TODAY,
 } from "./functions";
 import { EnrichedListing } from "../types/enrichment";
-import { format, parse, startOfDay } from "date-fns";
+import { format } from "date-fns";
 import { parseListingDate } from "../utils/dates";
+import { cleanStatus } from "../utils/listings";
 
 export const enrichedListingsToRawListings = (
   listings: EnrichedListing[]
@@ -201,7 +202,7 @@ const rawListingToSheetsListing = (
     yearsSinceSold: Number(listing[18]),
     cagr: Number(listing[19]),
     id: Number(listing[20]),
-    status: listing[21],
+    status: cleanStatus(listing[21] as ListingStatus),
     direction: listing[22],
     displayPrice: listing[23],
     inspection: listing[24],

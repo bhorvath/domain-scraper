@@ -47,10 +47,7 @@ export class Sheets {
   public async updateListings(listings: Listing[]) {
     const persistedListings = await this.getListings();
 
-    const modifiedListings = this.findModifiedListings(
-      persistedListings,
-      listings
-    );
+    this.findModifiedListings(persistedListings, listings);
 
     // If there are currently no persisted listings then assume that this is a
     // brand new sheet

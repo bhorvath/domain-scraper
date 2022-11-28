@@ -3,6 +3,7 @@ import { load } from "cheerio";
 import { isAfter, parse, startOfDay } from "date-fns";
 import { Listing, ListingFilterCriteria } from "../types/domain";
 import { parseListingDate } from "../utils/dates";
+import { cleanStatus } from "../utils/listings";
 
 const shortlistUrl = "https://www.domain.com.au/user/shortlist";
 
@@ -139,8 +140,15 @@ const hasChildren = (
   return Object(obj) === obj && !!Object.keys(obj).length;
 };
 
-const cleanse = (listings: Listing[]): any[] => {
+const cleanse = (listings: Listing[]): Listing[] => {
   return listings.map(
-    ({ cardImageUrl, headerImageUrl, images, ...item }) => item
+    // ({ cardImageUrl, headerImageUrl, images, ...item }) => item
+    (item) => ({
+      ...item,
+      status: cleanStatus(item.status),
+      cardImageUrl: "",
+      headerImageUrl: "",
+      images: [],
+    })
   );
 };
