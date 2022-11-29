@@ -57,4 +57,4 @@ export type RawListing = [
   string
 ];
 
-export type RawHistory = [string, string, string, string];
+export type RawHistory = [string, string, string, string, string];

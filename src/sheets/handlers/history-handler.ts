@@ -13,12 +13,14 @@ export class HistoryHandler {
    */
   public queuePendingHistory(
     address: string,
+    url: string,
     description: string,
     previousValue?: string
   ): void {
     const pendingHistory: PendingHistory = {
       date: Date.now(),
       address,
+      url,
       description,
     };
     if (previousValue) {
@@ -44,6 +46,7 @@ export class HistoryHandler {
     return pendingHistory.map((history) => [
       format(history.date, "dd/MM/yyyy HH:mm:ss"),
       history.address,
+      history.url,
       history.description,
       history.previousValue ?? "",
     ]);

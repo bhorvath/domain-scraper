@@ -112,6 +112,7 @@ export class ExistingListingHandler {
     this.addComment(item.persistedListing.position, description);
     this.addHistory(
       item.persistedListing.address,
+      item.persistedListing.url,
       description,
       this.formatPrice(item.persistedListing.advertisedPrice)
     );
@@ -134,7 +135,11 @@ export class ExistingListingHandler {
     console.info(`New inspection time for ${item.persistedListing.address}`);
 
     const description = `Inspection time: ${item.currentListing.inspectionDate?.openTime}`;
-    this.addHistory(item.persistedListing.address, description);
+    this.addHistory(
+      item.persistedListing.address,
+      item.persistedListing.url,
+      description
+    );
 
     item.persistedListing.inspection =
       item.currentListing.inspectionDate?.openTime ?? "";
@@ -146,6 +151,7 @@ export class ExistingListingHandler {
     const description = `Display Price: ${item.currentListing.displayPrice}`;
     this.addHistory(
       item.persistedListing.address,
+      item.persistedListing.url,
       description,
       item.persistedListing.displayPrice
     );
@@ -187,6 +193,7 @@ export class ExistingListingHandler {
     this.addComment(item.persistedListing.position, description);
     this.addHistory(
       item.persistedListing.address,
+      item.persistedListing.url,
       description,
       item.persistedListing.status
     );
@@ -204,11 +211,13 @@ export class ExistingListingHandler {
 
   private addHistory(
     address: string,
+    url: string,
     description: string,
     previousValue?: string
   ): void {
     this.historyHandler.queuePendingHistory(
       address,
+      url,
       description,
       previousValue
     );
