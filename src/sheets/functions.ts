@@ -17,4 +17,6 @@ export const ISBLANK = (value: string) => `ISBLANK(${value})`;
 
 export const ISNUMBER = (value: string) => `ISNUMBER(${value})`;
 
+export const ISDATE = (value: string) => `ISDATE(${value})`;
+
 export const VALUE = (text: string) => `VALUE(${text})`;

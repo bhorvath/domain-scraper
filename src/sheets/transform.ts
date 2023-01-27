@@ -7,6 +7,7 @@ import {
   FORMULA,
   IF,
   ISBLANK,
+  ISDATE,
   ISNUMBER,
   NOT,
   TODAY,
@@ -39,9 +40,9 @@ const enrichedListingToRawListing = (listing: EnrichedListing): RawListing => {
     getEstPriceFormula(), // Est. Price
     "", // Last Sold Price
     "", // Last Sold Date
-    "", // Difference
-    "", // Years Since Sold
-    "", // CAGR
+    getDifferenceFormula(), // Difference
+    getYearsSinceLastSoldFormula(), // Years Since Sold
+    getCagrFormula(), // CAGR
     String(listing.id), // ID
     listing.status, // Status
     listing.direction, // Direction
@@ -148,6 +149,36 @@ const getEstPriceFormula = (): string =>
       NOT(ISNUMBER(Element.SoldPrice)),
       Element.AdvertisedPrice,
       Element.SoldPrice
+    )
+  );
+
+const getDifferenceFormula = (): string =>
+  FORMULA(
+    IF(
+      ISNUMBER(Element.LastSoldPrice),
+      `${Element.EstimatedPrice}-${Element.LastSoldPrice}`,
+      ""
+    )
+  );
+
+const getCagrFormula = (): string =>
+  FORMULA(
+    IF(
+      AND(
+        ISNUMBER(Element.LastSoldPrice),
+        ISNUMBER(Element.YearsSinceLastSold)
+      ),
+      `(${Element.EstimatedPrice}/${Element.LastSoldPrice})^(1/${Element.YearsSinceLastSold})-1`,
+      ""
+    )
+  );
+
+const getYearsSinceLastSoldFormula = (): string =>
+  FORMULA(
+    IF(
+      ISDATE(Element.LastSoldDate),
+      `(${DATEDIF(Element.LastSoldDate, Element.DateListed)}/365.25)`,
+      ""
     )
   );
 
