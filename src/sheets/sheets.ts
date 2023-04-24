@@ -85,7 +85,16 @@ export class Sheets {
 
     currentListings.forEach((listing) => {
       const persistedListing = mappedPersistedListings.get(listing.id);
+
       if (persistedListing) {
+        // Don't add listings that were previously removed
+        if (persistedListing.status === "removed") {
+          console.warn(
+            "Listing was removed, however is being re-added to shortlist!",
+            persistedListing.address
+          );
+        }
+
         this.existingListingHandler.queueListing(persistedListing, listing);
       } else {
         this.newListingHandler.queueListing(listing);
