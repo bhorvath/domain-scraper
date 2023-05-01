@@ -87,7 +87,7 @@ export const sheetsListingToRawListing = (
     listing.direction, // Direction
     listing.displayPrice, // Display Price
     listing.inspection, // Inspection
-    "", // Comments
+    listing.comments, // Comments
   ];
 };
 
